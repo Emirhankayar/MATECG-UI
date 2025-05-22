@@ -2,20 +2,14 @@
 
 set -e
 
-git clone https://github.com/Emirhankayar/MATECG-UI.git
-cd MATECG-UI
-
-python3.11 -m venv venv
-source venv/bin/activate
-
 pip install -r requirements.txt
 
 cd src/Data/
 
 pip install gdown
 
-gdown https://drive.google.com/uc?id=FILE_ID_1
-gdown https://drive.google.com/uc?id=FILE_ID_2
+gdown https://drive.google.com/uc?id=1SKLSjpmsnGic0xtidMs_R_BnKdTwTcUK
+gdown https://drive.google.com/uc?id=1APwdgLVZLtK5mKE__uRTWupU_8veZCLZ
 
 unzip *.zip
 
