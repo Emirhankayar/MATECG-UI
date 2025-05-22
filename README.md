@@ -42,7 +42,10 @@ This is the repository for the Medical Device Software Prototype being devoleped
 Our idea is to develop a machine learning software able to detect diffrent kinds of arrhythmia starting from raw ECG data and basic patient information, like age and gender. To complete the medical device, this software should be embedded in a portable ECG scanner, but this is beyond the scope of the laboratory. However, this project still delivers an industrial level application, and the model training software.
 
 ## Data
-The data used for training is from this paper: [A 12-lead electrocardiogram database for arrhythmia research covering more than 10,000 patients](https://www.nature.com/articles/s41597-020-0386-x)
+Two distinct datasets are used to evaluate the model's generalization capability. The internal dataset, used for training and internal-testing, is sourced from this paper: [A 12-lead electrocardiogram database for arrhythmia research covering more than 10,000 patients](https://www.nature.com/articles/s41597-020-0386-x). The external dataset (link to be added) is used only for independent validation.
+
+## Preprocessing
+Preprocessing involves denoising the signals, time-binning them to a fixed length of 500, casting arrays to float32 and labels to int32, organizing directories, applying min-max scaling, and mapping the labels.
 
 ## Model Architecture  
 <p align="center">
@@ -51,11 +54,6 @@ The data used for training is from this paper: [A 12-lead electrocardiogram data
 
 ## Final Pipeline
 --TO BE ADDED--
-- Obtaining the data
-- Preprocessing
-- Choosing the model architecture
-- Training the model, customization
 - Preparing the Application (plugging the data, model)
-- Testing
 
 
