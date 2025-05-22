@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="282"
+   height="548"
+   viewBox="-0.5 -0.5 282 548"
+   id="svg38"
+   sodipodi:docname="final_architecture.svg"
+   inkscape:export-filename="final_architecture.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <sodipodi:namedview
+     id="namedview38"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="282"
+       height="548"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <rect
+     style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#3235d1;stroke-width:1.88976;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.7"
+     id="rect38"
+     width="390.3244"
+     height="625.71106"
+     x="-63.879406"
+     y="-44.975533"
+     rx="1.1338583" />
+  <g
+     id="g38">
+    <g
+       data-cell-id="0"
+       id="g37">
+      <g
+         data-cell-id="1"
+         id="g36">
+        <g
+           data-cell-id="qaTja_Kx7I3eLP2z1IE8-7"
+           id="g35">
+          <g
+             id="g1" />
+          <g
+             data-cell-id="qaTja_Kx7I3eLP2z1IE8-1"
+             id="g22">
+            <g
+               id="g21">
+              <g
+                 id="g20">
+                <svg
+                   width="138"
+                   height="548"
+                   viewBox="0 0 138 548"
+                   x="69.5"
+                   y="-0.5"
+                   style="font-family:initial"
+                   version="1.1"
+                   id="svg20">
+                  <g
+                     id="graph0"
+                     class="graph"
+                     transform="translate(4,544)">
+                    <title
+                       id="title1">G</title>
+                    <polygon
+                       fill="#ffffff"
+                       stroke="none"
+                       points="-4,4 -4,-544 134,-544 134,4 "
+                       id="polygon1" />
+                    <g
+                       id="clust1"
+                       class="cluster">
+                      <title
+                         id="title2">cluster_0</title>
+                      <path
+                         fill="#add8e6"
+                         stroke="#add8e6"
+                         d="m 20,-64 c 0,0 90,0 90,0 6,0 12,-6 12,-12 0,0 0,-252 0,-252 0,-6 -6,-12 -12,-12 0,0 -90,0 -90,0 -6,0 -12,6 -12,12 0,0 0,252 0,252 0,6 6,12 12,12"
+                         id="path2" />
+                    </g>
+                    <g
+                       id="clust2"
+                       class="cluster">
+                      <title
+                         id="title3">cluster_1</title>
+                      <path
+                         fill="#90ee90"
+                         stroke="#90ee90"
+                         d="m 28,-136 c 0,0 74,0 74,0 6,0 12,-6 12,-12 0,0 0,-172 0,-172 0,-6 -6,-12 -12,-12 0,0 -74,0 -74,0 -6,0 -12,6 -12,12 0,0 0,172 0,172 0,6 6,12 12,12"
+                         id="path3" />
+                    </g>
+                    <g
+                       id="node1"
+                       class="node">
+                      <title
+                         id="title4">Conv1D</title>
+                      <path
+                         fill="#fffff0"
+                         stroke="#fffff0"
+                         d="m 84.72,-324 c 0,0 -39.44,0 -39.44,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 39.44,0 39.44,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path4" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-301.79999"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text4">Conv1D</text>
+                    </g>
+                    <g
+                       id="node2"
+                       class="node">
+                      <title
+                         id="title5">BatchNorm</title>
+                      <path
+                         fill="#fffff0"
+                         stroke="#fffff0"
+                         d="m 93.66,-252 c 0,0 -57.32,0 -57.32,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 57.32,0 57.32,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path5" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-229.8"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text5">BatchNorm</text>
+                    </g>
+                    <g
+                       id="edge1"
+                       class="edge">
+                      <title
+                         id="title6">Conv1D-&gt;BatchNorm</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-287.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path6" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-253.62 61.5,-263.62 68.5,-263.62 "
+                         id="polygon6" />
+                    </g>
+                    <g
+                       id="node3"
+                       class="node">
+                      <title
+                         id="title7">ReLU</title>
+                      <path
+                         fill="#fffff0"
+                         stroke="#fffff0"
+                         d="m 80,-180 c 0,0 -30,0 -30,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 30,0 30,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path7" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-157.8"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text7">ReLU</text>
+                    </g>
+                    <g
+                       id="edge2"
+                       class="edge">
+                      <title
+                         id="title8">BatchNorm-&gt;ReLU</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-215.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path8" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-181.62 61.5,-191.62 68.5,-191.62 "
+                         id="polygon8" />
+                    </g>
+                    <g
+                       id="node4"
+                       class="node">
+                      <title
+                         id="title9">MaxPool1D</title>
+                      <path
+                         fill="#fffff0"
+                         stroke="#fffff0"
+                         d="m 95.22,-108 c 0,0 -60.44,0 -60.44,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 60.44,0 60.44,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path9" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-85.800003"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text9">MaxPool1D</text>
+                    </g>
+                    <g
+                       id="edge3"
+                       class="edge">
+                      <title
+                         id="title10">ReLU-&gt;MaxPool1D</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-143.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path10" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-109.62 61.5,-119.62 68.5,-119.62 "
+                         id="polygon10" />
+                    </g>
+                    <g
+                       id="node8"
+                       class="node">
+                      <title
+                         id="title11">Softmax</title>
+                      <polygon
+                         fill="none"
+                         stroke="#000000"
+                         points="65,-36 3.11,-18 65,0 126.89,-18 "
+                         id="polygon11" />
+                      <polyline
+                         fill="none"
+                         stroke="#000000"
+                         points="14.64,-21.35 14.64,-14.65"
+                         id="polyline11" />
+                      <polyline
+                         fill="none"
+                         stroke="#000000"
+                         points="53.48,-3.35 76.52,-3.35"
+                         id="polyline12" />
+                      <polyline
+                         fill="none"
+                         stroke="#000000"
+                         points="115.36,-14.65 115.36,-21.35"
+                         id="polyline13" />
+                      <polyline
+                         fill="none"
+                         stroke="#000000"
+                         points="76.52,-32.65 53.48,-32.65"
+                         id="polyline14" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-13.8"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text14">Softmax</text>
+                    </g>
+                    <g
+                       id="edge7"
+                       class="edge">
+                      <title
+                         id="title14">MaxPool1D-&gt;Softmax</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-71.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path14" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-37.62 61.5,-47.62 68.5,-47.62 "
+                         id="polygon14" />
+                    </g>
+                    <g
+                       id="node5"
+                       class="node">
+                      <title
+                         id="title15">Conv1D_0</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 84.72,-540 c 0,0 -39.44,0 -39.44,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 39.44,0 39.44,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path15" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-517.79999"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text15">Conv1D</text>
+                    </g>
+                    <g
+                       id="node6"
+                       class="node">
+                      <title
+                         id="title16">BatchNorm_0</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 93.66,-468 c 0,0 -57.32,0 -57.32,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 57.32,0 57.32,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path16" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-445.79999"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text16">BatchNorm</text>
+                    </g>
+                    <g
+                       id="edge4"
+                       class="edge">
+                      <title
+                         id="title17">Conv1D_0-&gt;BatchNorm_0</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-503.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path17" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-469.62 61.5,-479.62 68.5,-479.62 "
+                         id="polygon17" />
+                    </g>
+                    <g
+                       id="node7"
+                       class="node">
+                      <title
+                         id="title18">ReLU_0</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 80,-396 c 0,0 -30,0 -30,0 -6,0 -12,6 -12,12 0,0 0,12 0,12 0,6 6,12 12,12 0,0 30,0 30,0 6,0 12,-6 12,-12 0,0 0,-12 0,-12 0,-6 -6,-12 -12,-12"
+                         id="path18" />
+                      <text
+                         text-anchor="middle"
+                         x="65"
+                         y="-373.79999"
+                         font-family="Times, serif"
+                         font-size="14px"
+                         id="text18">ReLU</text>
+                    </g>
+                    <g
+                       id="edge5"
+                       class="edge">
+                      <title
+                         id="title19">BatchNorm_0-&gt;ReLU_0</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-431.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path19" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-397.62 61.5,-407.62 68.5,-407.62 "
+                         id="polygon19" />
+                    </g>
+                    <g
+                       id="edge6"
+                       class="edge">
+                      <title
+                         id="title20">ReLU_0-&gt;Conv1D</title>
+                      <path
+                         fill="none"
+                         stroke="#000000"
+                         d="m 65,-359.7 c 0,7.29 0,15.97 0,24.16"
+                         id="path20" />
+                      <polygon
+                         fill="#000000"
+                         stroke="#000000"
+                         points="65,-325.62 61.5,-335.62 68.5,-335.62 "
+                         id="polygon20" />
+                    </g>
+                  </g>
+                </svg>
+              </g>
+            </g>
+          </g>
+          <g
+             data-cell-id="qaTja_Kx7I3eLP2z1IE8-2"
+             id="g24">
+            <g
+               id="g23">
+              <path
+                 d="m 235.33,206 h -11.67 q -10,0 -10,10 v 116 q 0,10 -10,10 h -5.83 q -5.83,0 4.17,0 h 5.83 q 5.83,0 5.83,10 v 116 q 0,10 10,10 h 11.67"
+                 fill="none"
+                 stroke="#000000"
+                 stroke-miterlimit="10"
+                 transform="matrix(-1,0,0,1,427.32,0)"
+                 pointer-events="all"
+                 style="stroke:#000000"
+                 id="path22" />
+            </g>
+          </g>
+          <g
+             data-cell-id="qaTja_Kx7I3eLP2z1IE8-3"
+             id="g26">
+            <g
+               id="g25">
+              <path
+                 d="M 92.33,215 H 80.67 q -10,0 -10,10 v 75 q 0,10 -10,10 H 54.83 Q 49,310 59,310 h 5.83 q 5.84,0 5.84,10 v 75 q 0,10 10,10 h 11.66"
+                 fill="none"
+                 stroke="#000000"
+                 stroke-miterlimit="10"
+                 pointer-events="all"
+                 style="stroke:#000000"
+                 id="path24" />
+            </g>
+          </g>
+          <g
+             data-cell-id="qaTja_Kx7I3eLP2z1IE8-5"
+             id="g30">
+            <g
+               id="g27">
+              <rect
+                 x="-1"
+                 y="295"
+                 width="60"
+                 height="30"
+                 fill="none"
+                 stroke="none"
+                 pointer-events="all"
+                 id="rect26" />
+            </g>
+            <g
+               id="g29">
+              <g
+                 transform="translate(-0.5,-0.5)"
+                 id="g28">
+                <switch
+                   id="switch27">
+                  <foreignObject
+                     style="overflow: visible; text-align: left;"
+                     pointer-events="none"
+                     width="100%"
+                     height="100%"
+                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <xhtml:div
+                       style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 310px; margin-left: 0px;">
+                      <xhtml:div
+                         style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                        <xhtml:div
+                           style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">n</xhtml:div>
+                      </xhtml:div>
+                    </xhtml:div>
+                  </foreignObject>
+                  <image
+                     x="0"
+                     y="303.5"
+                     width="58"
+                     height="17"
+                     xlink:href="data:image/png;base64,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"
+                     id="image27" />
+                </switch>
+              </g>
+            </g>
+          </g>
+          <g
+             data-cell-id="qaTja_Kx7I3eLP2z1IE8-6"
+             id="g34">
+            <g
+               id="g31">
+              <rect
+                 x="221"
+                 y="327"
+                 width="60"
+                 height="30"
+                 fill="none"
+                 stroke="none"
+                 pointer-events="all"
+                 id="rect30" />
+            </g>
+            <g
+               id="g33">
+              <g
+                 transform="translate(-0.5,-0.5)"
+                 id="g32">
+                <switch
+                   id="switch31">
+                  <foreignObject
+                     style="overflow: visible; text-align: left;"
+                     pointer-events="none"
+                     width="100%"
+                     height="100%"
+                     requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+                    <xhtml:div
+                       style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 58px; height: 1px; padding-top: 342px; margin-left: 222px;">
+                      <xhtml:div
+                         style="box-sizing: border-box; font-size: 0; text-align: center; color: #000000; ">
+                        <xhtml:div
+                           style="display: inline-block; font-size: 12px; font-family: &quot;Helvetica&quot;; color: #000000; line-height: 1.2; pointer-events: all; white-space: normal; word-wrap: normal; ">m</xhtml:div>
+                      </xhtml:div>
+                    </xhtml:div>
+                  </foreignObject>
+                  <image
+                     x="222"
+                     y="335.5"
+                     width="58"
+                     height="17"
+                     xlink:href="data:image/png;base64,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"
+                     id="image31" />
+                </switch>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
