@@ -20,7 +20,12 @@ python3.11 -m venv venv
 
 .\venv\Scripts\Activate.ps1
 
-pip install tensorflow, pandas, PyQt5, pyqtgraph, matplotlib, scikit-learn
+pip install tensorflow
+pip install pandas
+pip install PyQt5
+pip install pyqtgraph
+pip install scikit-learn
+pip install matplotlib
 
 cd src\Data
 
