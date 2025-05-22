@@ -45,7 +45,6 @@ Our idea is to develop a machine learning software able to detect diffrent kinds
 The data used for training is from this paper: [A 12-lead electrocardiogram database for arrhythmia research covering more than 10,000 patients](https://www.nature.com/articles/s41597-020-0386-x)
 
 ## Model Architecture  
-ResNet  
 ![Model Architecture](src/Models/architecture.svg)
 
 ## Final Pipeline
