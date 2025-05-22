@@ -1,6 +1,7 @@
 import pathlib
 import numpy as np
 import pandas as pd
+from signal_grad_cam import TfCamBuilder
 from typing import Dict, List, Optional
 
 
@@ -14,13 +15,20 @@ class DataManager:
         self.diagnostics_map: Dict[pathlib.Path, pd.DataFrame] = {}
         self.diagnostics_file_map: Dict[pathlib.Path, pathlib.Path] = {}
         self.mounted_dirs: List[pathlib.Path] = []
-
         self.label_map = {
             0: "Atrial Fibrillation (AFIB)",
             1: "Generic Supraventricular Tachycardia (GSVT)",
             2: "Sinus Bradycardia (SB)",
             3: "Sinus Rhythm (SR)",
         }
+        self.grad_target_layer_name = ["res_4_conv_2"]
+        self.grad_target_classes = [0, 1, 2, 3]
+        self.grad_class_labels = [
+            "Atrial Fibrillation",
+            "Supraventricular Tachycardia",
+            "Sinus Bradycardia",
+            "Sinus Rhythm",
+        ]
 
     def add_directory(self, dir_path: pathlib.Path) -> tuple[bool, str]:
         if dir_path in self.mounted_dirs:
@@ -138,6 +146,59 @@ class DataManager:
             return True
         except Exception:
             return False
+
+    def get_patient_grad_cam(
+        self,
+        model,
+        patient_id: str,
+        patient_data: np.float32,
+        patient_label: np.int32,
+        dir_path: pathlib.Path,
+    ):
+
+        cam_builder = TfCamBuilder(
+            model, class_names=self.grad_class_labels, time_axs=0
+        )
+        cams, predicted_probs_dict, bar_ranges = cam_builder.get_cam(
+            patient_data,
+            data_labels=[patient_label],
+            target_classes=self.grad_target_classes,
+            explainer_types="Grad-CAM",
+            target_layers=self.grad_target_layer_name,
+            softmax_final=False,
+            data_names=patient_id,
+            data_sampling_freq=50,
+            dt=1,
+            results_dir_path=dir_path,
+        )
+
+        # Explain different input channels
+        comparison_algorithm = "Grad-CAM"
+        for i in range(12):
+            selected_channels_indices = [i]
+            results_dir_path = dir_path / f"channel_{i}"
+            results_dir_path.mkdir(parents=True, exist_ok=True)
+
+            cam_builder.single_channel_output_display(
+                data_list=patient_data,
+                data_labels=[patient_label],
+                predicted_probs_dict=predicted_probs_dict,
+                cams_dict=cams,
+                explainer_types=comparison_algorithm,
+                target_classes=self.grad_target_classes,
+                target_layers=self.grad_target_layer_name,
+                desired_channels=selected_channels_indices,
+                data_names=patient_id,
+                fig_size=(20, 10),
+                grid_instructions=(1, len(selected_channels_indices)),
+                bar_ranges_dict=bar_ranges,
+                results_dir_path=results_dir_path,
+                data_sampling_freq=50,
+                dt=1,
+                line_width=0.5,
+                marker_width=30,
+                axes_names=(None, None),
+            )
 
     def clear(self):
         self.all_patients.clear()

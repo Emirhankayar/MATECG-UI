@@ -1,4 +1,5 @@
 import pathlib
+import numpy as np
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
@@ -91,6 +92,7 @@ class App(QMainWindow):
             ("btn_add", "", "Add Patient"),
             ("btn_remove", "", "Remove Patient"),
             ("btn_save", "", "Save Patient"),
+            ("btn_toggle", "", "Load GRAD-CAM"),
         ]
 
         for attr_name, text, tooltip in buttons_config:
@@ -101,6 +103,7 @@ class App(QMainWindow):
             layout.addWidget(btn)
 
         # Initial states
+        self.btn_toggle.setEnabled(False)
         self.btn_save.setEnabled(False)
         self.btn_remove.setEnabled(False)
 
@@ -170,6 +173,7 @@ class App(QMainWindow):
         self.btn_remove.clicked.connect(self._remove_directories)
         self.btn_save.clicked.connect(self._save_prediction)
         self.btn_eval.clicked.connect(self._evaluate_patient)
+        self.btn_toggle.clicked.connect(self._load_patient_grad_cam)
 
         # Model selection
         self.model_options.currentTextChanged.connect(self._on_model_changed)
@@ -216,6 +220,7 @@ class App(QMainWindow):
         # Update labels and diagnostics
         self._update_patient_labels()
         self._update_patient_diagnostics()
+        self.btn_toggle.setEnabled(True)
 
     def _update_patient_labels(self):
         true_label = self.data_manager.get_patient_label(self.selected_patient)
@@ -313,6 +318,78 @@ class App(QMainWindow):
         self.prediction_label.setStyleSheet(f"color:{color}; font-weight:regular;")
 
         self.btn_save.setEnabled(True)
+
+    """
+    def _load_patient_grad_cam(self):
+        if not self.selected_patient:
+            self._show_warning("Select the patient first!")
+            return
+
+        patient_id = self.selected_patient
+
+        dir_path = pathlib.Path("src/Data/Cams") / patient_id
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        patient_data = self.data_manager.get_patient_data(self.selected_patient)
+
+        patient_data = self.model_manager._min_max_normalize(patient_data)
+
+        if patient_data.shape[1] == 1 and patient_data.ndim == 3:
+            patient_data = np.squeeze(patient_data, axis=1)
+
+        patient_data = np.expand_dims(patient_data, axis=0)
+        print(patient_data.shape)
+
+        patient_label = self.current_prediction
+
+        model = self.model_manager.current_model
+
+        self.data_manager.get_patient_grad_cam(
+            model, patient_id, patient_data, patient_label, dir_path
+        )
+    """
+
+    def _load_patient_grad_cam(self):
+        if not self.selected_patient:
+            self._show_warning("Select the patient first!")
+            return
+        diagnostics = self.data_manager.get_patient_diagnostics(self.selected_patient)
+        rhythm = diagnostics.get("Rhythm") if diagnostics else None
+
+        if pd.isna(rhythm):
+            self._show_warning(
+                "Rhythm label in diagnostics file is missing. Please evaluate the patient and save the result before loading Grad-CAM."
+            )
+            return
+
+        if isinstance(rhythm, int):
+            patient_label = rhythm
+        else:
+            label_map_rev = {v: k for k, v in self.data_manager.label_map.items()}
+            patient_label = label_map_rev.get(rhythm)
+            if patient_label is None:
+                self._show_warning(f"Could not convert Rhythm '{rhythm}' to label.")
+                return
+
+        dir_path = pathlib.Path("src/Data/Cams") / self.selected_patient
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+        patient_data = self.data_manager.get_patient_data(self.selected_patient)
+        if patient_data is None:
+            self._show_warning("No patient data loaded!")
+            return
+
+        patient_data = self.model_manager._min_max_normalize(patient_data)
+
+        if patient_data.ndim == 3 and patient_data.shape[1] == 1:
+            patient_data = np.squeeze(patient_data, axis=1)
+
+        patient_data = np.expand_dims(patient_data, axis=0)
+
+        model = self.model_manager.current_model
+        self.data_manager.get_patient_grad_cam(
+            model, self.selected_patient, patient_data, patient_label, dir_path
+        )
 
     def _save_prediction(self):
         if not self.selected_patient or not self.current_prediction_text:
