@@ -92,7 +92,7 @@ class App(QMainWindow):
             ("btn_add", "", "Add Patient"),
             ("btn_remove", "", "Remove Patient"),
             ("btn_save", "", "Save Patient"),
-            ("btn_toggle", "", "Load GRAD-CAM"),
+            # ("btn_toggle", "", "Load GRAD-CAM"),
         ]
 
         for attr_name, text, tooltip in buttons_config:
@@ -103,7 +103,7 @@ class App(QMainWindow):
             layout.addWidget(btn)
 
         # Initial states
-        self.btn_toggle.setEnabled(False)
+        # self.btn_toggle.setEnabled(False)
         self.btn_save.setEnabled(False)
         self.btn_remove.setEnabled(False)
 
@@ -173,7 +173,7 @@ class App(QMainWindow):
         self.btn_remove.clicked.connect(self._remove_directories)
         self.btn_save.clicked.connect(self._save_prediction)
         self.btn_eval.clicked.connect(self._evaluate_patient)
-        self.btn_toggle.clicked.connect(self._load_patient_grad_cam)
+        # self.btn_toggle.clicked.connect(self._load_patient_grad_cam)
 
         # Model selection
         self.model_options.currentTextChanged.connect(self._on_model_changed)
@@ -220,7 +220,7 @@ class App(QMainWindow):
         # Update labels and diagnostics
         self._update_patient_labels()
         self._update_patient_diagnostics()
-        self.btn_toggle.setEnabled(True)
+        # self.btn_toggle.setEnabled(True)
 
     def _update_patient_labels(self):
         true_label = self.data_manager.get_patient_label(self.selected_patient)
@@ -348,7 +348,7 @@ class App(QMainWindow):
             model, patient_id, patient_data, patient_label, dir_path
         )
     """
-
+    """
     def _load_patient_grad_cam(self):
         if not self.selected_patient:
             self._show_warning("Select the patient first!")
@@ -389,7 +389,7 @@ class App(QMainWindow):
         model = self.model_manager.current_model
         self.data_manager.get_patient_grad_cam(
             model, self.selected_patient, patient_data, patient_label, dir_path
-        )
+        )"""
 
     def _save_prediction(self):
         if not self.selected_patient or not self.current_prediction_text:
