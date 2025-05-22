@@ -27,6 +27,7 @@ pip install pyqtgraph
 pip install scikit-learn
 pip install matplotlib
 
+mkdir src\Data -Force
 cd src\Data
 
 pip install gdown
