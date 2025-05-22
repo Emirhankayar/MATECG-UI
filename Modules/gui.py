@@ -30,16 +30,14 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Initialize managers
+        # Initialize
         self.data_manager = DataManager()
         self.model_manager = ModelManager(constants.MODELS_DIR)
 
-        # Current state
         self.selected_patient: Optional[str] = None
         self.current_prediction: Optional[int] = None
         self.current_prediction_text: Optional[str] = None
 
-        # UI components
         self.diag_labels: Dict[str, QLabel] = {}
         self.diag_grid_widget: Optional[QWidget] = None
 
@@ -48,7 +46,6 @@ class App(QMainWindow):
         self._load_initial_model()
 
     def _setup_ui(self):
-        """Setup the user interface"""
         self.setWindowTitle("MATE-GUI")
         self.resize(900, 600)
 
@@ -67,7 +64,6 @@ class App(QMainWindow):
         main_layout.addLayout(right_panel, 3)
 
     def _create_left_panel(self) -> QVBoxLayout:
-        """Create left panel with patient list and controls"""
         layout = QVBoxLayout()
 
         # Search bar
@@ -87,7 +83,6 @@ class App(QMainWindow):
         return layout
 
     def _create_control_buttons(self) -> QHBoxLayout:
-        """Create control buttons for patient management"""
         layout = QHBoxLayout()
 
         font = QFont("FontAwesome", 20)
@@ -112,7 +107,6 @@ class App(QMainWindow):
         return layout
 
     def _create_right_panel(self) -> QVBoxLayout:
-        """Create right panel with plot and controls"""
         layout = QVBoxLayout()
 
         # Plot widget
@@ -135,7 +129,6 @@ class App(QMainWindow):
         return layout
 
     def _create_model_controls(self) -> QHBoxLayout:
-        """Create model selection and evaluation controls"""
         layout = QHBoxLayout()
 
         # Left side - model selection
@@ -168,7 +161,6 @@ class App(QMainWindow):
         return layout
 
     def _connect_signals(self):
-        """Connect UI signals to handlers"""
         # Search and selection
         self.search_bar.textChanged.connect(self._filter_patients)
         self.patient_list.currentItemChanged.connect(self._on_patient_selected)
@@ -183,13 +175,11 @@ class App(QMainWindow):
         self.model_options.currentTextChanged.connect(self._on_model_changed)
 
     def _load_initial_model(self):
-        """Load the first available model"""
         if self.model_options.count() > 0:
             first_model = self.model_options.itemText(0)
             self._load_model(first_model)
 
     def _filter_patients(self):
-        """Filter patient list based on search text"""
         search_text = self.search_bar.text().lower()
         filtered_patients = [
             p for p in self.data_manager.all_patients if search_text in p.lower()
@@ -197,13 +187,11 @@ class App(QMainWindow):
         self._update_patient_list(filtered_patients)
 
     def _update_patient_list(self, patients: List[str]):
-        """Update the patient list widget"""
         self.patient_list.clear()
         for patient in patients:
             self.patient_list.addItem(patient)
 
     def _on_patient_selected(self):
-        """Handle patient selection"""
         selected_item = self.patient_list.currentItem()
         if not selected_item:
             return
@@ -213,7 +201,6 @@ class App(QMainWindow):
         self._reset_prediction_ui()
 
     def _load_patient_data(self):
-        """Load and display patient data"""
         if not self.selected_patient:
             return
 
@@ -231,7 +218,6 @@ class App(QMainWindow):
         self._update_patient_diagnostics()
 
     def _update_patient_labels(self):
-        """Update patient label information"""
         true_label = self.data_manager.get_patient_label(self.selected_patient)
 
         if true_label is not None:
@@ -243,7 +229,6 @@ class App(QMainWindow):
             self.true_label.setText("True Label Class: --\nTrue Label: --")
 
     def _update_patient_diagnostics(self):
-        """Update patient diagnostics display"""
         diagnostics = self.data_manager.get_patient_diagnostics(self.selected_patient)
 
         if diagnostics is None:
@@ -266,7 +251,6 @@ class App(QMainWindow):
         self.btn_eval.setEnabled(rhythm_missing)
 
     def _create_diagnostics_grid(self, columns: List[str]):
-        """Create diagnostics display grid"""
         if self.diag_grid_widget:
             self.diag_grid_widget.deleteLater()
 
@@ -299,7 +283,6 @@ class App(QMainWindow):
         right_controls.addWidget(self.diag_grid_widget)
 
     def _evaluate_patient(self):
-        """Evaluate patient data using current model"""
         if not self.selected_patient:
             self._show_warning("No patient selected!")
             return
@@ -310,7 +293,6 @@ class App(QMainWindow):
             self._show_warning("No patient data loaded!")
             return
 
-        # Make prediction
         predicted_class = self.model_manager.predict(ecg_data)
         if predicted_class is None:
             self._show_error("Prediction failed!")
@@ -333,7 +315,6 @@ class App(QMainWindow):
         self.btn_save.setEnabled(True)
 
     def _save_prediction(self):
-        """Save current prediction to diagnostics file"""
         if not self.selected_patient or not self.current_prediction_text:
             self._show_warning("No prediction to save!")
             return
@@ -350,7 +331,6 @@ class App(QMainWindow):
             self._show_error("Failed to save prediction!")
 
     def _add_directory(self):
-        """Add patient directory"""
         directory = QFileDialog.getExistingDirectory(
             self, "Select Patient Directory", "src/Data/"
         )
@@ -369,7 +349,6 @@ class App(QMainWindow):
             self._show_error(message)
 
     def _remove_directories(self):
-        """Remove all mounted directories"""
         if not self.data_manager.mounted_dirs:
             self._show_info("No directories to remove.")
             return
@@ -384,13 +363,11 @@ class App(QMainWindow):
         self._show_info(f"Removed {removed_count} patients and reset UI.")
 
     def _on_model_changed(self):
-        """Handle model selection change"""
         selected_model = self.model_options.currentText()
         self._load_model(selected_model)
         self._reset_prediction_ui()
 
     def _load_model(self, model_name: str):
-        """Load selected model"""
         success = self.model_manager.load_model(model_name)
 
         if success:
@@ -401,7 +378,6 @@ class App(QMainWindow):
             self._show_error(f"Failed to load model: {model_name}")
 
     def _reset_prediction_ui(self):
-        """Reset prediction-related UI elements"""
         self.prediction_label.setText("Prediction: --, --")
         self.prediction_label.setStyleSheet("color:black; font-weight:regular;")
         self.btn_save.setEnabled(False)
@@ -409,7 +385,6 @@ class App(QMainWindow):
         self.current_prediction_text = None
 
     def _reset_ui(self):
-        """Reset entire UI to initial state"""
         self.patient_list.clear()
         self.search_bar.clear()
         self.plot_graph.clear()

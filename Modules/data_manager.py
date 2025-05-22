@@ -23,24 +23,19 @@ class DataManager:
         }
 
     def add_directory(self, dir_path: pathlib.Path) -> tuple[bool, str]:
-        """Add a patient directory and return success status with message"""
         if dir_path in self.mounted_dirs:
             return False, f"Directory '{dir_path}' already added"
 
-        # Load label map
         label_success, label_msg = self._load_label_map(dir_path)
         if not label_success:
             return False, label_msg
 
-        # Load diagnostics
         self._load_diagnostics(dir_path)
 
-        # Load patient files
         patient_files = list(dir_path.glob("*.csv"))
         if not patient_files:
             return False, "No .csv files found in directory"
 
-        # Add patients to registry
         new_patients = []
         for file in patient_files:
             patient_name = file.stem
@@ -91,7 +86,6 @@ class DataManager:
             return None
 
     def get_patient_label(self, patient_id: str) -> Optional[int]:
-        """Get true label for patient"""
         if patient_id not in self.patient_dir_map:
             return None
 
@@ -108,7 +102,6 @@ class DataManager:
         return int(patient_row["Rhythm"].iloc[0])
 
     def get_patient_diagnostics(self, patient_id: str) -> Optional[Dict]:
-        """Get diagnostics for patient"""
         if patient_id not in self.patient_dir_map:
             return None
 
@@ -125,7 +118,6 @@ class DataManager:
         return patient_row.drop(columns=["FileName"]).iloc[0].to_dict()
 
     def update_patient_rhythm(self, patient_id: str, predicted_rhythm: str) -> bool:
-        """Update patient's rhythm prediction in diagnostics file"""
         if patient_id not in self.patient_dir_map:
             return False
 
@@ -148,7 +140,6 @@ class DataManager:
             return False
 
     def clear(self):
-        """Clear all data"""
         self.all_patients.clear()
         self.patient_dir_map.clear()
         self.label_map_dfs.clear()
