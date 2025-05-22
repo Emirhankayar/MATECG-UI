@@ -21,6 +21,7 @@ python3.11 -m venv venv
 .\venv\Scripts\Activate.ps1
 
 pip install tensorflow
+pip install openpyxl
 pip install pandas
 pip install PyQt5
 pip install pyqtgraph
