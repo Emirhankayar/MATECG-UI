@@ -52,9 +52,6 @@ class GradCamWorker(QRunnable):
             comparison_algorithm = "Grad-CAM"
             for i in range(12):
                 step_time = time.time()
-                self.signals.log.emit(
-                    f"It took {time.time()-step_time} for step {i + 1}"
-                )
                 self.signals.log.emit(f"Processing Grad-CAM for channel {i + 1}/12...")
                 selected_channels_indices = [i]
                 results_dir_path = self.dir_path / f"channel_{i}"
