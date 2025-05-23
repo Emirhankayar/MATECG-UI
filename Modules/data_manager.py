@@ -152,32 +152,6 @@ class DataManager:
     def update_patient_grad(self, patient_id: str, value: int = 1) -> bool:
         return self.update_patient_diagnostic_field(patient_id, "Grad", value)
 
-    def get_patient_grad_status(self, patient_id: str) -> Optional[int]:
-        if patient_id not in self.patient_dir_map:
-            return None
-
-        dir_path = self.patient_dir_map[patient_id]
-        diag_df = self.diagnostics_map.get(dir_path)
-
-        if diag_df is None or diag_df.empty:
-            return None
-
-        patient_row = diag_df[diag_df["FileName"] == patient_id]
-        if patient_row.empty:
-            return None
-
-        if "Grad" not in diag_df.columns:
-            return None
-
-        grad_value = patient_row["Grad"].iloc[0]
-
-        if grad_value == 1:
-            return 1
-        elif grad_value == 0:
-            return 0
-        else:
-            return None
-
     def get_patient_cam_imgs(
         self, dir_path: pathlib.Path, patient_id: str, target_class: int
     ) -> Optional[List[pathlib.Path]]:
