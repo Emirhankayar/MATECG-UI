@@ -20,9 +20,11 @@ python3.12 -m venv venv
 
 .\venv\Scripts\Activate.ps1
 
-pip install --upgrade pip
 pip install -U pip setuptools wheel
-pip install tensorflow signal-grad-cam openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
+pip install signal-grad-cam tensorflow openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
+pip uninstall opencv-python
+pip cache purge
+pip install opencv-python-headless
 
 mkdir src\Data -Force
 cd src\Data
