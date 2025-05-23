@@ -36,8 +36,8 @@ cd src\Data
 
 pip install gdown
 
-gdown https://drive.google.com/uc?id=1SKLSjpmsnGic0xtidMs_R_BnKdTwTcUK
-gdown https://drive.google.com/uc?id=1APwdgLVZLtK5mKE__uRTWupU_8veZCLZ
+gdown https://drive.google.com/uc?id=14wejH07V4TiktA6WkpqACbwng66IVcgt
+gdown https://drive.google.com/uc?id=1h8L52fI3sTAhSSUkBu0Ku5VdsEwPhIYS
 
 Get-ChildItem -Filter *.zip | ForEach-Object { Expand-Archive -Path $_.FullName -DestinationPath "." }
 
