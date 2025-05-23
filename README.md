@@ -73,5 +73,7 @@ Preprocessing involves denoising the signals, time-binning them to a fixed lengt
   version = {0.0.1},
   year = {2025}
 }
-
+This code uses SignalGrad-CAM.
+Pe, S., Buonocore, T. M., Nicora, G., & Parimbelli, E. (2025). SignalGrad-CAM (Version 0.0.1) 
+https://github.com/bmi-labmedinfo/signal_grad_cam
 
