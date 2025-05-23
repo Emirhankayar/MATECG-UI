@@ -51,6 +51,10 @@ class GradCamWorker(QRunnable):
 
             comparison_algorithm = "Grad-CAM"
             for i in range(12):
+                step_time = time.time()
+                self.signals.log.emit(
+                    f"It took {time.time()-step_time} for step {i + 1}"
+                )
                 self.signals.log.emit(f"Processing Grad-CAM for channel {i + 1}/12...")
                 selected_channels_indices = [i]
                 results_dir_path = self.dir_path / f"channel_{i}"
@@ -76,11 +80,14 @@ class GradCamWorker(QRunnable):
                     marker_width=30,
                     axes_names=(None, None),
                 )
+                self.signals.log.emit(
+                    f"Step {i + 1} took {time.time() - step_time:.2f} seconds."
+                )
 
-            elapsed_time = time.time() - start_time
             self.signals.log.emit(
-                f"Grad-CAM generation completed in {elapsed_time:.2f} seconds."
+                f"Grad-CAM generation completed in {time.time() - start_time:.2f} seconds."
             )
+            time.sleep(2)
             self.signals.finished.emit()
 
         except Exception as e:

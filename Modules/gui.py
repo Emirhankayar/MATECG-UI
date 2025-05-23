@@ -421,9 +421,7 @@ class App(QMainWindow):
         self.btn_view.setEnabled(False)
         self.loading_dialog = LoadingDialog(parent=self)
         worker.signals.log.connect(self.loading_dialog.append_log)
-        worker.signals.finished.connect(
-            self.loading_dialog.accept
-        )  # closes dialog on finish
+        worker.signals.finished.connect(self.loading_dialog.accept)
         worker.signals.error.connect(
             lambda msg: self.loading_dialog.append_log(f"ERROR: {msg}")
         )
