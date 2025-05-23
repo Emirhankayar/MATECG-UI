@@ -2,17 +2,9 @@
 
 set -e
 
-
-pip install tensorflow
-pip install signal-grad-cam
-pip install openpyxl
-pip install pandas
-pip install PyQt5
-pip install pyqtgraph
-pip install pyqt-svg-button
-pip install absresgetter
-pip install scikit-learn
-pip install matplotlib
+pip install --upgrade pip
+pip install -U pip setuptools wheel
+pip install tensorflow signal-grad-cam openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
 
 mkdir -p src/Data
 cd src/Data/

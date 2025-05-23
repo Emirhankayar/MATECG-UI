@@ -5,7 +5,7 @@ git clone https://github.com/Emirhankayar/MATECG-UI.git
 cd MATECG-UI
 
 # Use python 3.11
-python3.11 -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate
 
 chmod +x install.sh
@@ -16,20 +16,13 @@ chmod +x install.sh
 git clone https://github.com/Emirhankayar/MATECG-UI.git
 cd MATECG-UI
 
-python3.11 -m venv venv
+python3.12 -m venv venv
 
 .\venv\Scripts\Activate.ps1
 
-pip install tensorflow
-pip install signal-grad-cam
-pip install openpyxl
-pip install pandas
-pip install PyQt5
-pip install pyqtgraph
-pip install pyqt-svg-button
-pip install absresgetter
-pip install scikit-learn
-pip install matplotlib
+pip install --upgrade pip
+pip install -U pip setuptools wheel
+pip install tensorflow signal-grad-cam openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
 
 mkdir src\Data -Force
 cd src\Data
