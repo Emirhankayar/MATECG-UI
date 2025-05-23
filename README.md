@@ -34,7 +34,8 @@ pip install gdown
 gdown https://drive.google.com/uc?id=14wejH07V4TiktA6WkpqACbwng66IVcgt
 gdown https://drive.google.com/uc?id=1h8L52fI3sTAhSSUkBu0Ku5VdsEwPhIYS
 
-Get-ChildItem -Filter *.zip | ForEach-Object { Expand-Archive -Path $_.FullName -DestinationPath "." }
+Expand-Archive -Path "External_Dataset.zip" -DestinationPath ".\External_Dataset"
+Expand-Archive -Path "Internal_Dataset.zip" -DestinationPath ".\Internal_Dataset"
 
 cd ../..
 python3 main.py
