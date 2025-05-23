@@ -29,6 +29,8 @@ class GradCamWorker(QRunnable):
         ]
 
     def run(self):
+        # This project uses SignalGrad-CAM (Pe et al., 2025)
+        # Source: https://github.com/bmi-labmedinfo/signal_grad_cam
         self.signals.log.emit("Starting Grad-CAM generation...")
         start_time = time.time()
         try:
