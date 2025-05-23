@@ -1,14 +1,14 @@
 import pathlib
 import numpy as np
 import pandas as pd
+import sys
+import os
+import subprocess
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QColor, QPainter, QImage
-import fitz  # pip install PyMuPDF
-from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
+from PyQt5.QtGui import QFont, QColor
 from typing import Dict, List, Optional
 from PyQt5.QtWidgets import (
-    QApplication,
     QComboBox,
     QFileDialog,
     QHBoxLayout,
@@ -97,7 +97,7 @@ class App(QMainWindow):
             ("btn_remove", "", "Remove Patient"),
             ("btn_save", "", "Save Patient"),
             ("btn_grad", "", "Load GRAD-CAM"),
-            ("btn_print", "", "Print/Save as PDF GRAD-CAM"),
+            ("btn_view", "", "View Grad-CAM PDF"),
         ]
 
         for attr_name, text, tooltip in buttons_config:
@@ -110,7 +110,7 @@ class App(QMainWindow):
         # Initial states
         self.btn_grad.setEnabled(False)
         self.btn_save.setEnabled(False)
-        self.btn_print.setEnabled(False)
+        self.btn_view.setEnabled(False)
         self.btn_remove.setEnabled(False)
 
         return layout
@@ -180,7 +180,7 @@ class App(QMainWindow):
         self.btn_save.clicked.connect(self._save_prediction)
         self.btn_eval.clicked.connect(self._evaluate_patient)
         self.btn_grad.clicked.connect(self._load_patient_grad_cam)
-        self.btn_print.clicked.connect(self._print_cam_imgs)
+        self.btn_view.clicked.connect(self._open_cam_pdf_external)
 
         # Model selection
         self.model_options.currentTextChanged.connect(self._on_model_changed)
@@ -278,8 +278,8 @@ class App(QMainWindow):
         self.btn_grad.setEnabled(grad_missing)
 
         # Enable print only if grad is ready
-        self.btn_print.setEnabled(grad_ready)
-        self.btn_print.setToolTip(
+        self.btn_view.setEnabled(grad_ready)
+        self.btn_view.setToolTip(
             "Grad-CAM ready to print for this patient."
             if grad_ready
             else "Grad-CAM not available."
@@ -398,7 +398,7 @@ class App(QMainWindow):
 
         self.patient_list.setEnabled(False)
         self.btn_grad.setEnabled(False)
-        self.btn_print.setEnabled(True)
+        self.btn_view.setEnabled(True)
         self.btn_grad.setToolTip("Generating Grad-CAM...")
 
         self.data_manager.get_patient_grad_cam(
@@ -417,58 +417,14 @@ class App(QMainWindow):
             self._show_info("Grad-CAM was successfully generated and Saved as PDF.")
             self.btn_grad.setToolTip("Grad-CAM already available for this patient.")
             self.btn_grad.setEnabled(False)
-            self.btn_print.setEnabled(True)
-            self.btn_print.setToolTip("Grad-CAM ready to print for this patient.")
+            self.btn_view.setEnabled(True)
+            self.btn_view.setToolTip("Grad-CAM ready to print for this patient.")
         else:
             self._show_error("Failed to generate Grad-CAM!")
             self.btn_grad.setEnabled(True)
-            self.btn_print.setEnabled(False)
-            self.btn_print.setToolTip(
-                "Grad-CAM is not ready to print for this patient."
-            )
+            self.btn_view.setEnabled(False)
+            self.btn_view.setToolTip("Grad-CAM is not ready to print for this patient.")
             self.btn_grad.setToolTip("Grad-CAM generation failed. Click to retry.")
-
-    def _print_cam_imgs(self):
-        patient_id = self.selected_patient
-        if not patient_id:
-            self._show_warning("No patient selected!")
-            return
-
-        pdf_path = pathlib.Path("src/Data/Cams") / patient_id / f"{patient_id}.pdf"
-        if not pdf_path.exists():
-            print(f"PDF not found: {pdf_path}")
-            return
-
-        doc = fitz.open(str(pdf_path))
-
-        printer = QPrinter()
-        printer.setPageSize(QPrinter.A4)
-        printer.setFullPage(True)
-        printer.setOutputFormat(QPrinter.NativeFormat)
-
-        dialog = QPrintDialog(printer)
-        if dialog.exec_() != QPrintDialog.Accepted:
-            print("Print cancelled.")
-            return
-
-        painter = QPainter(printer)
-        for page_num in range(len(doc)):
-            if page_num > 0:
-                printer.newPage()
-
-            pix = doc.load_page(page_num).get_pixmap(dpi=300)
-            img = QImage(
-                pix.samples, pix.width, pix.height, pix.stride, QImage.Format_RGB888
-            )
-            rect = painter.viewport()
-            size = img.size()
-            size.scale(rect.size(), aspectMode=1)
-            painter.setViewport(rect.x(), rect.y(), size.width(), size.height())
-            painter.setWindow(img.rect())
-            painter.drawImage(0, 0, img)
-
-        painter.end()
-        print(f"Printed PDF: {pdf_path}")
 
     def _save_prediction(self):
         if not self.selected_patient or not self.current_prediction_text:
@@ -555,6 +511,34 @@ class App(QMainWindow):
             self.diag_labels.clear()
 
         self._reset_prediction_ui()
+
+    def get_native_os(self, pdf_path: pathlib.Path):
+        """use native OS app to view the pdf"""
+        pdf_str = str(pdf_path)
+        if sys.platform.startswith("linux"):
+            subprocess.run(["xdg-open", pdf_str])
+        elif sys.platform == "darwin":  # macOS
+            subprocess.run(["open", pdf_str])
+        elif sys.platform == "win32":
+            os.startfile(pdf_str)
+        else:
+            print(f"Unsupported OS: {sys.platform}")
+
+    def _open_cam_pdf_external(self):
+        patient_id = self.selected_patient
+        if not patient_id:
+            self._show_warning("No patient selected!")
+            return
+
+        pdf_path = pathlib.Path("src/Data/Cams") / patient_id / f"{patient_id}.pdf"
+        if not pdf_path.exists():
+            self._show_error("Grad-CAM PDF not found!")
+            return
+
+        try:
+            self.get_native_os(pdf_path)
+        except Exception as e:
+            self._show_error(f"Failed to open PDF: {e}")
 
     def _show_error(self, message: str):
         """Show error message"""
