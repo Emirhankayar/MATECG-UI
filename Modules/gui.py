@@ -3,9 +3,12 @@ import numpy as np
 import pandas as pd
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor, QPainter, QImage
+import fitz  # pip install PyMuPDF
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from typing import Dict, List, Optional
 from PyQt5.QtWidgets import (
+    QApplication,
     QComboBox,
     QFileDialog,
     QHBoxLayout,
@@ -71,6 +74,7 @@ class App(QMainWindow):
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("Search patient id...")
         layout.addWidget(self.search_bar)
+        self.search_bar.setEnabled(False)
 
         # Patient list
         self.patient_list = QListWidget()
@@ -92,7 +96,8 @@ class App(QMainWindow):
             ("btn_add", "", "Add Patient"),
             ("btn_remove", "", "Remove Patient"),
             ("btn_save", "", "Save Patient"),
-            # ("btn_toggle", "", "Load GRAD-CAM"),
+            ("btn_grad", "", "Load GRAD-CAM"),
+            ("btn_print", "", "Print/Save as PDF GRAD-CAM"),
         ]
 
         for attr_name, text, tooltip in buttons_config:
@@ -103,8 +108,9 @@ class App(QMainWindow):
             layout.addWidget(btn)
 
         # Initial states
-        # self.btn_toggle.setEnabled(False)
+        self.btn_grad.setEnabled(False)
         self.btn_save.setEnabled(False)
+        self.btn_print.setEnabled(False)
         self.btn_remove.setEnabled(False)
 
         return layout
@@ -173,7 +179,8 @@ class App(QMainWindow):
         self.btn_remove.clicked.connect(self._remove_directories)
         self.btn_save.clicked.connect(self._save_prediction)
         self.btn_eval.clicked.connect(self._evaluate_patient)
-        # self.btn_toggle.clicked.connect(self._load_patient_grad_cam)
+        self.btn_grad.clicked.connect(self._load_patient_grad_cam)
+        self.btn_print.clicked.connect(self._print_cam_imgs)
 
         # Model selection
         self.model_options.currentTextChanged.connect(self._on_model_changed)
@@ -194,6 +201,16 @@ class App(QMainWindow):
         self.patient_list.clear()
         for patient in patients:
             self.patient_list.addItem(patient)
+
+    def _update_patient_color(self, patient_name: str, status: str):
+        for i in range(self.patient_list.count()):
+            item = self.patient_list.item(i)
+            if item.text() == patient_name:
+                if status == "green":
+                    item.setForeground(QColor(0, 128, 0))  # Green
+                else:
+                    item.setData(Qt.ForegroundRole, None)
+                break
 
     def _on_patient_selected(self):
         selected_item = self.patient_list.currentItem()
@@ -220,7 +237,6 @@ class App(QMainWindow):
         # Update labels and diagnostics
         self._update_patient_labels()
         self._update_patient_diagnostics()
-        # self.btn_toggle.setEnabled(True)
 
     def _update_patient_labels(self):
         true_label = self.data_manager.get_patient_label(self.selected_patient)
@@ -254,6 +270,20 @@ class App(QMainWindow):
         # Enable evaluation if rhythm is missing
         rhythm_missing = pd.isna(diagnostics.get("Rhythm"))
         self.btn_eval.setEnabled(rhythm_missing)
+        # Enable grad if grad value is missing
+        grad_value = diagnostics.get("Grad")
+        grad_ready = grad_value == 1
+        grad_missing = grad_value == 0 or pd.isna(grad_value)
+
+        self.btn_grad.setEnabled(grad_missing)
+
+        # Enable print only if grad is ready
+        self.btn_print.setEnabled(grad_ready)
+        self.btn_print.setToolTip(
+            "Grad-CAM ready to print for this patient."
+            if grad_ready
+            else "Grad-CAM not available."
+        )
 
     def _create_diagnostics_grid(self, columns: List[str]):
         if self.diag_grid_widget:
@@ -263,11 +293,17 @@ class App(QMainWindow):
         grid_layout = QGridLayout()
         grid_layout.setContentsMargins(0, 0, 0, 0)
         grid_layout.setSpacing(15)
+        reordered_columns = []
+        if "Rhythm" in columns:
+            reordered_columns.append("Rhythm")
+        reordered_columns.extend(
+            [col for col in columns if col not in ("Rhythm", "FileName")]
+        )
 
         self.diag_labels = {}
         cols = 3
-
-        for i, col_name in enumerate(columns):
+        label_index = 0
+        for col_name in reordered_columns:
             if col_name == "FileName":
                 continue
 
@@ -275,10 +311,11 @@ class App(QMainWindow):
             label.setWordWrap(True)
             label.setAlignment(Qt.AlignLeft)
 
-            row, col = i // cols, i % cols
+            row, col = label_index // cols, label_index % cols
             grid_layout.addWidget(label, row, col)
             self.diag_labels[col_name] = label
 
+            label_index += 1
         self.diag_grid_widget.setLayout(grid_layout)
 
         # Add to right panel (find the right controls layout)
@@ -319,46 +356,17 @@ class App(QMainWindow):
 
         self.btn_save.setEnabled(True)
 
-    """
     def _load_patient_grad_cam(self):
         if not self.selected_patient:
             self._show_warning("Select the patient first!")
             return
 
-        patient_id = self.selected_patient
-
-        dir_path = pathlib.Path("src/Data/Cams") / patient_id
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-        patient_data = self.data_manager.get_patient_data(self.selected_patient)
-
-        patient_data = self.model_manager._min_max_normalize(patient_data)
-
-        if patient_data.shape[1] == 1 and patient_data.ndim == 3:
-            patient_data = np.squeeze(patient_data, axis=1)
-
-        patient_data = np.expand_dims(patient_data, axis=0)
-        print(patient_data.shape)
-
-        patient_label = self.current_prediction
-
-        model = self.model_manager.current_model
-
-        self.data_manager.get_patient_grad_cam(
-            model, patient_id, patient_data, patient_label, dir_path
-        )
-    """
-    """
-    def _load_patient_grad_cam(self):
-        if not self.selected_patient:
-            self._show_warning("Select the patient first!")
-            return
         diagnostics = self.data_manager.get_patient_diagnostics(self.selected_patient)
         rhythm = diagnostics.get("Rhythm") if diagnostics else None
 
         if pd.isna(rhythm):
             self._show_warning(
-                "Rhythm label in diagnostics file is missing. Please evaluate the patient and save the result before loading Grad-CAM."
+                "Rhythm label in diagnostics file is missing.\nPlease evaluate the patient and save the result\nbefore generating Grad-CAM."
             )
             return
 
@@ -387,9 +395,80 @@ class App(QMainWindow):
         patient_data = np.expand_dims(patient_data, axis=0)
 
         model = self.model_manager.current_model
+
+        self.patient_list.setEnabled(False)
+        self.btn_grad.setEnabled(False)
+        self.btn_print.setEnabled(True)
+        self.btn_grad.setToolTip("Generating Grad-CAM...")
+
         self.data_manager.get_patient_grad_cam(
             model, self.selected_patient, patient_data, patient_label, dir_path
-        )"""
+        )
+
+        success = self.data_manager.update_patient_grad(self.selected_patient)
+        self.patient_list.setEnabled(True)
+        self._update_patient_color(self.selected_patient, "green")
+        self._update_patient_diagnostics()
+        if success:
+            self._update_patient_diagnostics()
+            self.data_manager.get_patient_cam_imgs(
+                dir_path, self.selected_patient, patient_label
+            )
+            self._show_info("Grad-CAM was successfully generated and Saved as PDF.")
+            self.btn_grad.setToolTip("Grad-CAM already available for this patient.")
+            self.btn_grad.setEnabled(False)
+            self.btn_print.setEnabled(True)
+            self.btn_print.setToolTip("Grad-CAM ready to print for this patient.")
+        else:
+            self._show_error("Failed to generate Grad-CAM!")
+            self.btn_grad.setEnabled(True)
+            self.btn_print.setEnabled(False)
+            self.btn_print.setToolTip(
+                "Grad-CAM is not ready to print for this patient."
+            )
+            self.btn_grad.setToolTip("Grad-CAM generation failed. Click to retry.")
+
+    def _print_cam_imgs(self):
+        patient_id = self.selected_patient
+        if not patient_id:
+            self._show_warning("No patient selected!")
+            return
+
+        pdf_path = pathlib.Path("src/Data/Cams") / patient_id / f"{patient_id}.pdf"
+        if not pdf_path.exists():
+            print(f"PDF not found: {pdf_path}")
+            return
+
+        doc = fitz.open(str(pdf_path))
+
+        printer = QPrinter()
+        printer.setPageSize(QPrinter.A4)
+        printer.setFullPage(True)
+        printer.setOutputFormat(QPrinter.NativeFormat)
+
+        dialog = QPrintDialog(printer)
+        if dialog.exec_() != QPrintDialog.Accepted:
+            print("Print cancelled.")
+            return
+
+        painter = QPainter(printer)
+        for page_num in range(len(doc)):
+            if page_num > 0:
+                printer.newPage()
+
+            pix = doc.load_page(page_num).get_pixmap(dpi=300)
+            img = QImage(
+                pix.samples, pix.width, pix.height, pix.stride, QImage.Format_RGB888
+            )
+            rect = painter.viewport()
+            size = img.size()
+            size.scale(rect.size(), aspectMode=1)
+            painter.setViewport(rect.x(), rect.y(), size.width(), size.height())
+            painter.setWindow(img.rect())
+            painter.drawImage(0, 0, img)
+
+        painter.end()
+        print(f"Printed PDF: {pdf_path}")
 
     def _save_prediction(self):
         if not self.selected_patient or not self.current_prediction_text:
@@ -418,6 +497,7 @@ class App(QMainWindow):
         success, message = self.data_manager.add_directory(dir_path)
 
         if success:
+            self.search_bar.setEnabled(True)
             self._update_patient_list(self.data_manager.all_patients)
             self.btn_add.setEnabled(False)
             self.btn_remove.setEnabled(True)
@@ -430,14 +510,14 @@ class App(QMainWindow):
             self._show_info("No directories to remove.")
             return
 
-        removed_count = len(self.data_manager.all_patients)
         self.data_manager.clear()
         self._reset_ui()
 
         self.btn_add.setEnabled(True)
         self.btn_remove.setEnabled(False)
+        self.search_bar.setEnabled(False)
 
-        self._show_info(f"Removed {removed_count} patients and reset UI.")
+        self._show_info(f"Removed the directory.")
 
     def _on_model_changed(self):
         selected_model = self.model_options.currentText()

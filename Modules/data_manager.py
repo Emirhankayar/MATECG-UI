@@ -1,6 +1,7 @@
 import pathlib
 import numpy as np
 import pandas as pd
+from PIL import Image
 from signal_grad_cam import TfCamBuilder
 from typing import Dict, List, Optional
 
@@ -123,9 +124,13 @@ class DataManager:
         if patient_row.empty:
             return None
 
-        return patient_row.drop(columns=["FileName"]).iloc[0].to_dict()
+        row = patient_row.iloc[0]
 
-    def update_patient_rhythm(self, patient_id: str, predicted_rhythm: str) -> bool:
+        return row.to_dict()
+
+    def update_patient_diagnostic_field(
+        self, patient_id: str, field: str, value
+    ) -> bool:
         if patient_id not in self.patient_dir_map:
             return False
 
@@ -141,11 +146,45 @@ class DataManager:
             return False
 
         try:
-            diag_df.loc[idx, "Rhythm"] = predicted_rhythm
+            diag_df.loc[idx, field] = value
             diag_df.to_excel(diag_path, index=False)
             return True
         except Exception:
             return False
+
+    def update_patient_rhythm(self, patient_id: str, predicted_rhythm: str) -> bool:
+        return self.update_patient_diagnostic_field(
+            patient_id, "Rhythm", predicted_rhythm
+        )
+
+    def update_patient_grad(self, patient_id: str, value: int = 1) -> bool:
+        return self.update_patient_diagnostic_field(patient_id, "Grad", value)
+
+    def get_patient_grad_status(self, patient_id: str) -> Optional[int]:
+        if patient_id not in self.patient_dir_map:
+            return None
+
+        dir_path = self.patient_dir_map[patient_id]
+        diag_df = self.diagnostics_map.get(dir_path)
+
+        if diag_df is None or diag_df.empty:
+            return None
+
+        patient_row = diag_df[diag_df["FileName"] == patient_id]
+        if patient_row.empty:
+            return None
+
+        if "Grad" not in diag_df.columns:
+            return None
+
+        grad_value = patient_row["Grad"].iloc[0]
+
+        if grad_value == 1:
+            return 1
+        elif grad_value == 0:
+            return 0
+        else:
+            return None
 
     def get_patient_grad_cam(
         self,
@@ -199,6 +238,46 @@ class DataManager:
                 marker_width=30,
                 axes_names=(None, None),
             )
+
+    def get_patient_cam_imgs(
+        self, dir_path: pathlib.Path, patient_id: str, target_class: int
+    ) -> Optional[List[pathlib.Path]]:
+        cam_path = dir_path
+
+        channels = {
+            p.name
+            for p in cam_path.iterdir()
+            if p.is_dir() and p.name.startswith("channel_")
+        }
+        if channels != {f"channel_{i}" for i in range(12)}:
+            print("Missing some channel directories.")
+            return None
+
+        images = []
+        for i in range(12):
+            channel_dir = cam_path / f"channel_{i}"
+            imgs = list(channel_dir.rglob(f"*class{target_class}.png"))
+            if not imgs:
+                print(f"Missing image in {channel_dir} for class {target_class}")
+                return None
+            images.append(imgs[0])
+
+        self.save_cam_imgs_as_pdf(images, patient_id, dir_path.parent)
+        return images
+
+    def save_cam_imgs_as_pdf(
+        self, image_paths: List[pathlib.Path], patient_id: str, output_dir: pathlib.Path
+    ):
+        pil_images = [Image.open(str(path)).convert("RGB") for path in image_paths]
+        pdf_path = output_dir / patient_id / f"{patient_id}.pdf"
+        pil_images[0].save(
+            pdf_path,
+            save_all=True,
+            append_images=pil_images[1:],
+            resolution=300,
+            quality=95,
+        )
+        print(f"Saved PDF to: {pdf_path}")
 
     def clear(self):
         self.all_patients.clear()
