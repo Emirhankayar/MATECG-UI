@@ -6,7 +6,7 @@ import webbrowser
 import subprocess
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QIcon
 from typing import Dict, List, Optional
 from functools import partial
 
@@ -60,7 +60,12 @@ class App(QMainWindow):
         self._load_initial_model()
 
     def _setup_ui(self):
+        icon = str(pathlib.Path.cwd() / pathlib.Path("src/icons/appicon.png"))
+        print(f"\n\n\n\n\n\n{icon}\n\n\n\n\n\n")
+        self.setWindowIcon(QIcon(icon))
+
         self.setWindowTitle("MATE-GUI")
+
         self.resize(900, 600)
 
         # Main layout
@@ -182,7 +187,6 @@ class App(QMainWindow):
         return layout
 
     def _connect_signals(self):
-        # Search and selection
         self.search_bar.textChanged.connect(self._filter_patients)
         self.patient_list.currentItemChanged.connect(self._on_patient_selected)
 
@@ -194,7 +198,6 @@ class App(QMainWindow):
         self.btn_grad.clicked.connect(self._load_patient_grad_cam)
         self.btn_view.clicked.connect(self._open_cam_pdf_external)
 
-        # Model selection
         self.model_options.currentTextChanged.connect(self._on_model_changed)
 
     def _load_initial_model(self):
