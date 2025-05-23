@@ -66,4 +66,12 @@ Preprocessing involves denoising the signals, time-binning them to a fixed lengt
 --TO BE ADDED--
 - Preparing the Application (plugging the data, model)
 
+@software{Pe_SignalGrad_CAM_2025,
+  author = {Pe, Samuele and Buonocore, Tommaso Mario and Giovanna, Nicora and Enea, Parimbelli},
+  title = {{SignalGrad-CAM}},
+  url = {https://github.com/bmi-labmedinfo/signal_grad_cam},
+  version = {0.0.1},
+  year = {2025}
+}
+
 
