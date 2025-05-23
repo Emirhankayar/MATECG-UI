@@ -2,20 +2,20 @@
 <p align="center">
   <img src="src/icons/appicon.png" alt="App Icon" width="600"/>
 </p>
-# Installation
-## Linux & OSX
+
+## Installation
+### Linux & OSX
 ```sh
 git clone https://github.com/Emirhankayar/MATECG-UI.git
 cd MATECG-UI
 
-# Use python 3.11
 python3.12 -m venv venv
 source venv/bin/activate
 
 chmod +x install.sh
 ./install.sh
 ```
-## Windows
+### Windows
 ```sh
 git clone https://github.com/Emirhankayar/MATECG-UI.git
 cd MATECG-UI
@@ -45,7 +45,7 @@ cd ../..
 python3 main.py
 
 ```
-# ECG Classification Based Medical Device Prototype
+## ECG Classification Based Medical Device Prototype
 This is the repository for the Medical Device Software Prototype being devoleped by Alessandro Longato, Emirhan Kayar, Lodovico Cabrini, and Libero Biagi, for the Laboratory of Medical Devices and Systems, third year of the Bachelor of Science in Artificial Intelligence (a.y. 2024/2025).
 
 ## Our Idea
