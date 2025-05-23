@@ -1,3 +1,7 @@
+# MATECG-UI
+<p align="center">
+  <img src="src/icons/appicon.png" alt="App Icon" width="600"/>
+</p>
 # Installation
 ## Linux & OSX
 ```sh
