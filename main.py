@@ -10,7 +10,6 @@ os.environ["QT_QPA_PLATFORM"] = "xcb"
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = gui.App()
-
     # window.showFullScreen()
-    window.show()  # if you want not fullscreen
+    window.show()
     sys.exit(app.exec_())

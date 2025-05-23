@@ -6,7 +6,7 @@ import webbrowser
 import subprocess
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QColor
 from typing import Dict, List, Optional
 from PyQt5.QtWidgets import (
     QComboBox,
@@ -22,6 +22,9 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from pyqt_svg_button.svgButton import SvgButton
+
+
 import Modules.constants as constants
 from Modules.data_manager import DataManager
 from Modules.ecg_plotter import ECGPlotter
@@ -90,20 +93,22 @@ class App(QMainWindow):
     def _create_control_buttons(self) -> QHBoxLayout:
         layout = QHBoxLayout()
 
-        font = QFont("FontAwesome", 20)
-
         buttons_config = [
-            ("btn_add", "", "Add Patient"),
-            ("btn_remove", "", "Remove Patient"),
-            ("btn_save", "", "Save Patient"),
-            ("btn_grad", "", "Load GRAD-CAM"),
-            ("btn_view", "", "View Grad-CAM PDF"),
+            ("btn_add", "add.svg", "Add Patient"),
+            ("btn_remove", "remove.svg", "Remove Patient"),
+            ("btn_save", "save.svg", "Save Patient"),
+            ("btn_grad", "grad.svg", "Load GRAD-CAM"),
+            ("btn_view", "view.svg", "View Grad-CAM PDF"),
         ]
 
-        for attr_name, text, tooltip in buttons_config:
-            btn = QPushButton(text)
-            btn.setFont(font)
+        for attr_name, icon_filename, tooltip in buttons_config:
+            icon_path = str(
+                pathlib.Path.cwd() / pathlib.Path("src/icons") / icon_filename
+            )
+            btn = SvgButton(self)
+            btn.setIcon(icon_path)
             btn.setToolTip(tooltip)
+            btn.setFixedSize(40, 40)
             setattr(self, attr_name, btn)
             layout.addWidget(btn)
 
@@ -396,17 +401,14 @@ class App(QMainWindow):
 
         model = self.model_manager.current_model
 
-        self.patient_list.setEnabled(False)
-        self.btn_grad.setEnabled(False)
-        self.btn_view.setEnabled(True)
-        self.btn_grad.setToolTip("Generating Grad-CAM...")
-
         self.data_manager.get_patient_grad_cam(
             model, self.selected_patient, patient_data, patient_label, dir_path
         )
+        self.patient_list.setEnabled(False)
+        self.btn_grad.setEnabled(False)
+        self.btn_view.setEnabled(True)
 
         success = self.data_manager.update_patient_grad(self.selected_patient)
-        self.patient_list.setEnabled(True)
         self._update_patient_color(self.selected_patient, "green")
         self._update_patient_diagnostics()
         if success:
@@ -416,12 +418,14 @@ class App(QMainWindow):
             )
             self._show_info("Grad-CAM was successfully generated and Saved as PDF.")
             self.btn_grad.setToolTip("Grad-CAM already available for this patient.")
+            self.patient_list.setEnabled(True)
             self.btn_grad.setEnabled(False)
             self.btn_view.setEnabled(True)
             self.btn_view.setToolTip("Grad-CAM ready to print for this patient.")
         else:
             self._show_error("Failed to generate Grad-CAM!")
             self.btn_grad.setEnabled(True)
+            self.patient_list.setEnabled(True)
             self.btn_view.setEnabled(False)
             self.btn_view.setToolTip("Grad-CAM is not ready to print for this patient.")
             self.btn_grad.setToolTip("Grad-CAM generation failed. Click to retry.")

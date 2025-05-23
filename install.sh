@@ -4,10 +4,13 @@ set -e
 
 
 pip install tensorflow
+pip install signal-grad-cam
 pip install openpyxl
 pip install pandas
 pip install PyQt5
 pip install pyqtgraph
+pip install pyqt-svg-button
+pip install absresgetter
 pip install scikit-learn
 pip install matplotlib
 
