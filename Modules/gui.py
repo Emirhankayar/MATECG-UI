@@ -435,7 +435,6 @@ class App(QMainWindow):
         patient_id = worker.patient_id
         patient_label = worker.patient_label
         dir_path = worker.dir_path
-        # self._show_info("Grad-CAM was successfully generated and saved as PDF.")
         self._update_patient_color(patient_id, "green")
         self.data_manager.update_patient_grad(patient_id)
         self._update_patient_diagnostics()

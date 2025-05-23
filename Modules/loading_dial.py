@@ -13,10 +13,10 @@ class LoadingDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.setModal(True)
-        self.resize(500, 300)
+        self.resize(800, 600)
 
         layout = QVBoxLayout()
-        self.label = QLabel("Grad-CAM images are being generating...")
+        self.label = QLabel("Grad-CAM images are being generated...")
         layout.addWidget(self.label)
 
         self.progress = QProgressBar()
