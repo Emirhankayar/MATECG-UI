@@ -2,7 +2,7 @@ import pathlib
 import numpy as np
 import pandas as pd
 import sys
-import os
+import webbrowser
 import subprocess
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
@@ -514,15 +514,22 @@ class App(QMainWindow):
 
     def get_native_os(self, pdf_path: pathlib.Path):
         """use native OS app to view the pdf"""
-        pdf_str = str(pdf_path)
-        if sys.platform.startswith("linux"):
-            subprocess.run(["xdg-open", pdf_str])
-        elif sys.platform == "darwin":  # macOS
-            subprocess.run(["open", pdf_str])
-        elif sys.platform == "win32":
-            os.startfile(pdf_str)
-        else:
-            print(f"Unsupported OS: {sys.platform}")
+        """
+            placed a fallback, if the OS does not have native app
+            it runs the pdf in the browser NOT SURE IF GONNA WORK
+        """
+        pdf_path = str(pdf_path)
+        try:
+            if sys.platform == "win32":
+                subprocess.run(["start", str(pdf_path)], shell=True, check=True)
+            elif sys.platform == "darwin":
+                subprocess.run(["open", str(pdf_path)], check=True)
+            elif sys.platform.startswith("linux"):
+                subprocess.run(["xdg-open", str(pdf_path)], check=True)
+            else:
+                raise Exception("Unsupported OS")
+        except Exception as e:
+            webbrowser.open_new_tab(pdf_path.absolute().as_uri())
 
     def _open_cam_pdf_external(self):
         patient_id = self.selected_patient
