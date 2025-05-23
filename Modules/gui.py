@@ -8,6 +8,8 @@ import pyqtgraph as pg
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from typing import Dict, List, Optional
+from functools import partial
+
 from PyQt5.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -22,6 +24,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from PyQt5.QtCore import QThreadPool
+
 from pyqt_svg_button.svgButton import SvgButton
 
 
@@ -29,6 +33,8 @@ import Modules.constants as constants
 from Modules.data_manager import DataManager
 from Modules.ecg_plotter import ECGPlotter
 from Modules.model_manager import ModelManager
+from Modules.grad_worker import GradCamWorker
+from Modules.loading_dial import LoadingDialog
 
 
 class App(QMainWindow):
@@ -36,6 +42,7 @@ class App(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.threadpool = QThreadPool()
 
         # Initialize
         self.data_manager = DataManager()
@@ -399,36 +406,52 @@ class App(QMainWindow):
 
         patient_data = np.expand_dims(patient_data, axis=0)
 
-        model = self.model_manager.current_model
-
-        self.data_manager.get_patient_grad_cam(
-            model, self.selected_patient, patient_data, patient_label, dir_path
+        worker = GradCamWorker(
+            model=self.model_manager.current_model,
+            patient_id=self.selected_patient,
+            patient_data=patient_data,
+            patient_label=patient_label,
+            dir_path=dir_path,
         )
+        worker.signals.finished.connect(partial(self._on_grad_cam_finished, worker))
+        worker.signals.error.connect(partial(self._on_grad_cam_error, worker))
+
         self.patient_list.setEnabled(False)
+        self.btn_grad.setEnabled(False)
+        self.btn_view.setEnabled(False)
+        self.loading_dialog = LoadingDialog(parent=self)
+        worker.signals.log.connect(self.loading_dialog.append_log)
+        worker.signals.finished.connect(
+            self.loading_dialog.accept
+        )  # closes dialog on finish
+        worker.signals.error.connect(
+            lambda msg: self.loading_dialog.append_log(f"ERROR: {msg}")
+        )
+
+        self.loading_dialog.show()
+        self.threadpool.start(worker)
+
+    def _on_grad_cam_finished(self, worker):
+        patient_id = worker.patient_id
+        patient_label = worker.patient_label
+        dir_path = worker.dir_path
+        # self._show_info("Grad-CAM was successfully generated and saved as PDF.")
+        self._update_patient_color(patient_id, "green")
+        self.data_manager.update_patient_grad(patient_id)
+        self._update_patient_diagnostics()
+
+        self.data_manager.get_patient_cam_imgs(dir_path, patient_id, patient_label)
+        self.btn_grad.setToolTip("Grad-CAM already available for this patient.")
+        self.btn_view.setToolTip("Grad-CAM ready to print for this patient.")
+
+        self.patient_list.setEnabled(True)
         self.btn_grad.setEnabled(False)
         self.btn_view.setEnabled(True)
 
-        success = self.data_manager.update_patient_grad(self.selected_patient)
-        self._update_patient_color(self.selected_patient, "green")
-        self._update_patient_diagnostics()
-        if success:
-            self._update_patient_diagnostics()
-            self.data_manager.get_patient_cam_imgs(
-                dir_path, self.selected_patient, patient_label
-            )
-            self._show_info("Grad-CAM was successfully generated and Saved as PDF.")
-            self.btn_grad.setToolTip("Grad-CAM already available for this patient.")
-            self.patient_list.setEnabled(True)
-            self.btn_grad.setEnabled(False)
-            self.btn_view.setEnabled(True)
-            self.btn_view.setToolTip("Grad-CAM ready to print for this patient.")
-        else:
-            self._show_error("Failed to generate Grad-CAM!")
-            self.btn_grad.setEnabled(True)
-            self.patient_list.setEnabled(True)
-            self.btn_view.setEnabled(False)
-            self.btn_view.setToolTip("Grad-CAM is not ready to print for this patient.")
-            self.btn_grad.setToolTip("Grad-CAM generation failed. Click to retry.")
+    def _on_grad_cam_error(self, error_msg):
+        self._show_error(f"Grad-CAM generation failed: {error_msg}")
+        self.patient_list.setEnabled(True)
+        self.btn_grad.setEnabled(True)
 
     def _save_prediction(self):
         if not self.selected_patient or not self.current_prediction_text:
