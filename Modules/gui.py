@@ -1,14 +1,14 @@
+import sys
 import pathlib
+import subprocess
+import webbrowser
 import numpy as np
 import pandas as pd
-import sys
-import webbrowser
-import subprocess
 import pyqtgraph as pg
 from PyQt5.QtCore import Qt
+from functools import partial
 from PyQt5.QtGui import QColor, QIcon
 from typing import Dict, List, Optional
-from functools import partial
 
 from PyQt5.QtWidgets import (
     QComboBox,
@@ -28,8 +28,6 @@ from PyQt5.QtCore import QThreadPool
 
 from pyqt_svg_button.svgButton import SvgButton
 
-
-import Modules.constants as constants
 from Modules.data_manager import DataManager
 from Modules.ecg_plotter import ECGPlotter
 from Modules.model_manager import ModelManager
@@ -43,10 +41,10 @@ class App(QMainWindow):
     def __init__(self):
         super().__init__()
         self.threadpool = QThreadPool()
-
-        # Initialize
         self.data_manager = DataManager()
-        self.model_manager = ModelManager(constants.MODELS_DIR)
+        self.model_manager = ModelManager(
+            str(pathlib.Path.cwd() / pathlib.Path("src/Models"))
+        )
 
         self.selected_patient: Optional[str] = None
         self.current_prediction: Optional[int] = None
@@ -61,7 +59,6 @@ class App(QMainWindow):
 
     def _setup_ui(self):
         icon = str(pathlib.Path.cwd() / pathlib.Path("src/icons/appicon.png"))
-        print(f"\n\n\n\n\n\n{icon}\n\n\n\n\n\n")
         self.setWindowIcon(QIcon(icon))
 
         self.setWindowTitle("MATE-GUI")
@@ -106,11 +103,12 @@ class App(QMainWindow):
         layout = QHBoxLayout()
 
         buttons_config = [
-            ("btn_add", "add.svg", "Add Patient"),
-            ("btn_remove", "remove.svg", "Remove Patient"),
-            ("btn_save", "save.svg", "Save Patient"),
-            ("btn_grad", "grad.svg", "Load GRAD-CAM"),
-            ("btn_view", "view.svg", "View Grad-CAM PDF"),
+            ("btn_add", "add.svg", "Add directory."),
+            ("btn_remove", "remove.svg", "Remove current directory."),
+            ("btn_save", "save.svg", "Save patient rhythm data."),
+            ("btn_grad", "grad.svg", "Generate patient GRAD-CAM data"),
+            ("btn_view", "view.svg", "View generated patient Grad-CAM data as PDF"),
+            ("btn_eval", "eval.svg", "Predict patient rhythm data."),
         ]
 
         for attr_name, icon_filename, tooltip in buttons_config:
@@ -127,6 +125,7 @@ class App(QMainWindow):
         # Initial states
         self.btn_grad.setEnabled(False)
         self.btn_save.setEnabled(False)
+        self.btn_eval.setEnabled(False)
         self.btn_view.setEnabled(False)
         self.btn_remove.setEnabled(False)
 
@@ -146,11 +145,11 @@ class App(QMainWindow):
 
         # Left controls (model selection)
         left_controls = self._create_model_controls()
-        bottom_layout.addLayout(left_controls, 2)
+        bottom_layout.addLayout(left_controls, 1)
 
         # Right controls (diagnostics)
         right_controls = QVBoxLayout()
-        bottom_layout.addLayout(right_controls, 1)
+        bottom_layout.addLayout(right_controls, 3)
 
         return layout
 
@@ -163,26 +162,22 @@ class App(QMainWindow):
         self.model_options = QComboBox()
         self.model_options.addItems(list(self.model_manager.model_paths.keys()))
 
-        self.dropdown_label = QLabel("Loaded Model: --")
-        self.model_dir = QLabel("Model Directory: --, --")
+        self.dropdown_label = QLabel(
+            f"<b>Model Information</b><br>" f"Name: --, --<br>" f"Dir: --, --"
+        )
 
         left_side.addWidget(self.model_options)
         left_side.addWidget(self.dropdown_label)
-        left_side.addWidget(self.model_dir)
 
-        # Right side - evaluation
-        right_side = QVBoxLayout()
-
-        self.btn_eval = QPushButton("Evaluate Patient Data")
-        self.prediction_label = QLabel("Prediction: --, --")
-        self.true_label = QLabel("True Label Class: --, --\nTrue Label: --, --")
-
-        right_side.addWidget(self.btn_eval)
-        right_side.addWidget(self.prediction_label)
-        right_side.addWidget(self.true_label)
-
+        self.prediction_label = QLabel(
+            f"<b>Prediction Information</b><br>" f"Class: --, --<br>" f"Name: --, --"
+        )
+        self.true_label = QLabel(
+            f"<b>Label Information</b><br>" f"Class: --, --<br>" f"Name: --, --"
+        )
+        left_side.addWidget(self.prediction_label)
+        left_side.addWidget(self.true_label)
         layout.addLayout(left_side)
-        layout.addLayout(right_side)
 
         return layout
 
@@ -222,7 +217,7 @@ class App(QMainWindow):
             item = self.patient_list.item(i)
             if item.text() == patient_name:
                 if status == "green":
-                    item.setForeground(QColor(0, 128, 0))  # Green
+                    item.setForeground(QColor(0, 128, 0))
                 else:
                     item.setData(Qt.ForegroundRole, None)
                 break
@@ -248,21 +243,23 @@ class App(QMainWindow):
 
         # Plot ECG signal
         self.plotter.plot_signal(ecg_data)
-
-        # Update labels and diagnostics
         self._update_patient_labels()
         self._update_patient_diagnostics()
 
     def _update_patient_labels(self):
         true_label = self.data_manager.get_patient_label(self.selected_patient)
-
+        self.btn_eval.setEnabled(True)
         if true_label is not None:
             label_text = self.data_manager.label_map.get(true_label, "Unknown")
             self.true_label.setText(
-                f"True Label Class: {true_label}\nTrue Label: {label_text}"
+                f"<b>Label Information</b><br>"
+                f"Class: {true_label}<br>"
+                f"Name: {label_text}"
             )
         else:
-            self.true_label.setText("True Label Class: --\nTrue Label: --")
+            self.true_label.setText(
+                f"<b>Label Information</b><br>" f"Class: --, --<br>" f"Name: --, --"
+            )
 
     def _update_patient_diagnostics(self):
         diagnostics = self.data_manager.get_patient_diagnostics(self.selected_patient)
@@ -270,11 +267,9 @@ class App(QMainWindow):
         if diagnostics is None:
             return
 
-        # Create/update diagnostics grid if needed
         if not self.diag_grid_widget:
             self._create_diagnostics_grid(list(diagnostics.keys()))
 
-        # Update diagnostic labels
         for col_name, value in diagnostics.items():
             if col_name in self.diag_labels:
                 display_value = "--" if pd.isna(value) else str(value)
@@ -283,16 +278,13 @@ class App(QMainWindow):
                 )
 
         # Enable evaluation if rhythm is missing
+        # Enable grad if grad value is missing
         rhythm_missing = pd.isna(diagnostics.get("Rhythm"))
         self.btn_eval.setEnabled(rhythm_missing)
-        # Enable grad if grad value is missing
         grad_value = diagnostics.get("Grad")
         grad_ready = grad_value == 1
         grad_missing = grad_value == 0 or pd.isna(grad_value)
-
         self.btn_grad.setEnabled(grad_missing)
-
-        # Enable print only if grad is ready
         self.btn_view.setEnabled(grad_ready)
         self.btn_view.setToolTip(
             "Grad-CAM ready to print for this patient."
@@ -306,8 +298,9 @@ class App(QMainWindow):
 
         self.diag_grid_widget = QWidget()
         grid_layout = QGridLayout()
-        grid_layout.setContentsMargins(0, 0, 0, 0)
+        grid_layout.setContentsMargins(5, 40, 0, 0)
         grid_layout.setSpacing(15)
+        grid_layout.setVerticalSpacing(30)
         reordered_columns = []
         if "Rhythm" in columns:
             reordered_columns.append("Rhythm")
@@ -316,7 +309,7 @@ class App(QMainWindow):
         )
 
         self.diag_labels = {}
-        cols = 3
+        cols = 6
         label_index = 0
         for col_name in reordered_columns:
             if col_name == "FileName":
@@ -332,8 +325,6 @@ class App(QMainWindow):
 
             label_index += 1
         self.diag_grid_widget.setLayout(grid_layout)
-
-        # Add to right panel (find the right controls layout)
         right_panel = self.central_widget.layout().itemAt(1).layout()
         bottom_layout = right_panel.itemAt(1).layout()
         right_controls = bottom_layout.itemAt(1).layout()
@@ -344,7 +335,6 @@ class App(QMainWindow):
             self._show_warning("No patient selected!")
             return
 
-        # Get patient data
         ecg_data = self.data_manager.get_patient_data(self.selected_patient)
         if ecg_data is None:
             self._show_warning("No patient data loaded!")
@@ -361,13 +351,10 @@ class App(QMainWindow):
         )
 
         self.prediction_label.setText(
-            f"Prediction: {self.current_prediction_text},\n"
-            f"Prediction Class: {predicted_class}"
+            f"<b>Prediction Information</b><br>"
+            f"Class: {predicted_class}<br>"
+            f"Name: {self.current_prediction_text}"
         )
-
-        true_label = self.data_manager.get_patient_label(self.selected_patient)
-        color = "green" if predicted_class == true_label else "red"
-        self.prediction_label.setStyleSheet(f"color:{color}; font-weight:regular;")
 
         self.btn_save.setEnabled(True)
 
@@ -477,16 +464,12 @@ class App(QMainWindow):
             return
 
         dir_path = pathlib.Path(directory)
-        success, message = self.data_manager.add_directory(dir_path)
-
+        success = self.data_manager.add_directory(dir_path)
         if success:
             self.search_bar.setEnabled(True)
             self._update_patient_list(self.data_manager.all_patients)
             self.btn_add.setEnabled(False)
             self.btn_remove.setEnabled(True)
-            self._show_info(message)
-        else:
-            self._show_error(message)
 
     def _remove_directories(self):
         if not self.data_manager.mounted_dirs:
@@ -512,14 +495,20 @@ class App(QMainWindow):
 
         if success:
             model_path = self.model_manager.model_paths[model_name]
-            self.dropdown_label.setText(f"Loaded Model: {model_name}")
-            self.model_dir.setText(f"Model Directory: {model_path}")
+            model_path = pathlib.Path(model_path).relative_to(pathlib.Path.cwd())
+
+            self.dropdown_label.setText(
+                f"<b>Model Information</b><br>"
+                f"Name: {model_name}<br>"
+                f"Dir: {model_path}"
+            )
         else:
             self._show_error(f"Failed to load model: {model_name}")
 
     def _reset_prediction_ui(self):
-        self.prediction_label.setText("Prediction: --, --")
-        self.prediction_label.setStyleSheet("color:black; font-weight:regular;")
+        self.prediction_label.setText(
+            f"<b>Prediction Information</b><br>" f"Class: --, --<br>" f"Name: --, --"
+        )
         self.btn_save.setEnabled(False)
         self.current_prediction = None
         self.current_prediction_text = None
@@ -528,7 +517,9 @@ class App(QMainWindow):
         self.patient_list.clear()
         self.search_bar.clear()
         self.plot_graph.clear()
-        self.true_label.setText("True Label Class: --, --\nTrue Label: --, --")
+        self.true_label.setText(
+            f"<b>Label Information</b><br>" f"Class: --, --<br>" f"Name: --, --"
+        )
         self.selected_patient = None
 
         # Clear diagnostics grid

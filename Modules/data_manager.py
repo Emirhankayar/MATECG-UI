@@ -2,7 +2,6 @@ import pathlib
 import numpy as np
 import pandas as pd
 from PIL import Image
-from signal_grad_cam import TfCamBuilder
 from typing import Dict, List, Optional
 
 
@@ -48,7 +47,7 @@ class DataManager:
         self.all_patients = sorted(set(self.all_patients))
         self.mounted_dirs.append(dir_path)
 
-        return True, f"Added {len(new_patients)} patients"
+        return True  # , f"Added {len(new_patients)} patients"
 
     def _load_label_map(self, dir_path: pathlib.Path) -> tuple[bool, str]:
         label_path = dir_path / "Label_Map.xlsx"

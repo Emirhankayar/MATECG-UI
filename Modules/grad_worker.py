@@ -11,6 +11,8 @@ class GradCamWorkerSignals(QObject):
 
 
 class GradCamWorker(QRunnable):
+    """Worker class for the gradcam, to prevent main loop blocking"""
+
     def __init__(self, model, patient_id, patient_data, patient_label, dir_path):
         super().__init__()
         self.model = model

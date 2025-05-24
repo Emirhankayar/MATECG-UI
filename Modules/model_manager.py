@@ -1,16 +1,16 @@
-import pathlib
+import os
+from typing import Dict, Optional
 import itertools
+import pathlib
 import numpy as np
 import tensorflow as tf
-from typing import Dict, Optional
-
-tf.config.set_visible_devices([], "GPU")  # disable GPU
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 class ModelManager:
     """Manages model loading and prediction"""
 
     def __init__(self, models_dir: str):
+        import tensorflow as tf
         self.models_dir = pathlib.Path(models_dir)
         self.model_paths: Dict[str, pathlib.Path] = {}
         self.current_model = None

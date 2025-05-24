@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import (
 
 
 class LoadingDialog(QDialog):
+    """Minimalistic loading dialog"""
+
     def __init__(self, title="Processing...", parent=None):
         super().__init__(parent)
         self.setWindowTitle(title)
