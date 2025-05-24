@@ -19,7 +19,6 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QMainWindow,
     QMessageBox,
-    QPushButton,
     QGridLayout,
     QVBoxLayout,
     QWidget,
@@ -43,7 +42,7 @@ class App(QMainWindow):
         self.threadpool = QThreadPool()
         self.data_manager = DataManager()
         self.model_manager = ModelManager(
-            str(pathlib.Path.cwd() / pathlib.Path("src/Models"))
+            str(pathlib.Path.cwd() / pathlib.Path("src/Models").resolve())
         )
 
         self.selected_patient: Optional[str] = None
@@ -58,7 +57,8 @@ class App(QMainWindow):
         self._load_initial_model()
 
     def _setup_ui(self):
-        icon = str(pathlib.Path.cwd() / pathlib.Path("src/icons/appicon.png"))
+        icon = str(pathlib.Path.cwd() / "src" / "icons" / "appicon.png")
+
         self.setWindowIcon(QIcon(icon))
 
         self.setWindowTitle("MATE-GUI")
@@ -112,9 +112,8 @@ class App(QMainWindow):
         ]
 
         for attr_name, icon_filename, tooltip in buttons_config:
-            icon_path = str(
-                pathlib.Path.cwd() / pathlib.Path("src/icons") / icon_filename
-            )
+            icon_path = str(pathlib.Path.cwd() / "src" / "icons" / icon_filename)
+
             btn = SvgButton(self)
             btn.setIcon(icon_path)
             btn.setToolTip(tooltip)
@@ -160,7 +159,8 @@ class App(QMainWindow):
         left_side = QVBoxLayout()
 
         self.model_options = QComboBox()
-        self.model_options.addItems(list(self.model_manager.model_paths.keys()))
+        available_models = self.model_manager.get_available_models()
+        self.model_options.addItems(available_models)
 
         self.dropdown_label = QLabel(
             f"<b>Model Information</b><br>" f"Name: --, --<br>" f"Dir: --, --"
@@ -381,7 +381,8 @@ class App(QMainWindow):
                 self._show_warning(f"Could not convert Rhythm '{rhythm}' to label.")
                 return
 
-        dir_path = pathlib.Path("src/Data/Cams") / self.selected_patient
+        dir_path = pathlib.Path("src") / "Data" / "Cams" / self.selected_patient
+
         dir_path.mkdir(parents=True, exist_ok=True)
 
         patient_data = self.data_manager.get_patient_data(self.selected_patient)
@@ -457,19 +458,23 @@ class App(QMainWindow):
             self._show_error("Failed to save prediction!")
 
     def _add_directory(self):
+        default_dir = str(pathlib.Path("src") / "Data")
         directory = QFileDialog.getExistingDirectory(
-            self, "Select Patient Directory", "src/Data/"
+            self, "Select Patient Directory", default_dir
         )
         if not directory:
             return
 
-        dir_path = pathlib.Path(directory)
+        dir_path = pathlib.Path(directory).resolve()
         success = self.data_manager.add_directory(dir_path)
+
         if success:
             self.search_bar.setEnabled(True)
             self._update_patient_list(self.data_manager.all_patients)
             self.btn_add.setEnabled(False)
             self.btn_remove.setEnabled(True)
+        else:
+            self._show_error("Failed to add directory.")
 
     def _remove_directories(self):
         if not self.data_manager.mounted_dirs:
@@ -494,9 +499,8 @@ class App(QMainWindow):
         success = self.model_manager.load_model(model_name)
 
         if success:
-            model_path = self.model_manager.model_paths[model_name]
-            model_path = pathlib.Path(model_path).relative_to(pathlib.Path.cwd())
-
+            model_path = self.model_manager.model_paths.get(model_name.lower())
+            model_path = model_path.relative_to(pathlib.Path.cwd())
             self.dropdown_label.setText(
                 f"<b>Model Information</b><br>"
                 f"Name: {model_name}<br>"
@@ -536,18 +540,27 @@ class App(QMainWindow):
             placed a fallback, if the OS does not have native app
             it runs the pdf in the browser NOT SURE IF GONNA WORK
         """
-        pdf_path = str(pdf_path)
+        pdf_path = str(pdf_path.resolve())
+
         try:
-            if sys.platform == "win32":
-                subprocess.run(["start", str(pdf_path)], shell=True, check=True)
-            elif sys.platform == "darwin":
+            if sys.platform.startswith == "win":
+                import os
+
+                os.startfile(pdf_path)
+                return True
+            elif sys.platform.startswith == "darwin":
                 subprocess.run(["open", str(pdf_path)], check=True)
+                return True
+
             elif sys.platform.startswith("linux"):
                 subprocess.run(["xdg-open", str(pdf_path)], check=True)
+                return True
+
             else:
-                raise Exception("Unsupported OS")
+                webbrowser.open(pdf_path.as_uri())
         except Exception as e:
-            webbrowser.open_new_tab(pdf_path.absolute().as_uri())
+            print(f"Failed to open file with system app")
+            return False
 
     def _open_cam_pdf_external(self):
         patient_id = self.selected_patient
@@ -555,7 +568,10 @@ class App(QMainWindow):
             self._show_warning("No patient selected!")
             return
 
-        pdf_path = pathlib.Path("src/Data/Cams") / patient_id / f"{patient_id}.pdf"
+        pdf_path = (
+            pathlib.Path("src") / "Data" / "Cams" / patient_id / f"{patient_id}.pdf"
+        )
+
         if not pdf_path.exists():
             self._show_error("Grad-CAM PDF not found!")
             return

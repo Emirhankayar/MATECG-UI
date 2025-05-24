@@ -1,4 +1,5 @@
 import time
+import pathlib
 from signal_grad_cam import TfCamBuilder
 from PyQt5.QtCore import QRunnable, pyqtSignal, QObject
 
@@ -19,7 +20,8 @@ class GradCamWorker(QRunnable):
         self.patient_id = patient_id
         self.patient_data = patient_data
         self.patient_label = patient_label
-        self.dir_path = dir_path
+        self.dir_path = dir_path.resolve()
+
         self.signals = GradCamWorkerSignals()
         self.grad_target_layer_name = ["res_4_conv_2"]
         self.grad_target_classes = [0, 1, 2, 3]
@@ -40,6 +42,7 @@ class GradCamWorker(QRunnable):
             cam_builder = TfCamBuilder(
                 self.model, class_names=self.grad_class_labels, time_axs=0
             )
+
             cams, predicted_probs_dict, bar_ranges = cam_builder.get_cam(
                 self.patient_data,
                 data_labels=[self.patient_label],
@@ -50,7 +53,7 @@ class GradCamWorker(QRunnable):
                 data_names=self.patient_id,
                 data_sampling_freq=50,
                 dt=1,
-                results_dir_path=self.dir_path,
+                results_dir_path=str(self.dir_path),
             )
 
             comparison_algorithm = "Grad-CAM"
@@ -74,7 +77,7 @@ class GradCamWorker(QRunnable):
                     fig_size=(20, 10),
                     grid_instructions=(1, len(selected_channels_indices)),
                     bar_ranges_dict=bar_ranges,
-                    results_dir_path=results_dir_path,
+                    results_dir_path=str(results_dir_path),
                     data_sampling_freq=50,
                     dt=1,
                     line_width=0.5,

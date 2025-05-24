@@ -4,14 +4,17 @@ import itertools
 import pathlib
 import numpy as np
 import tensorflow as tf
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+# Set TensorFlow logging before importing
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 
 class ModelManager:
     """Manages model loading and prediction"""
 
     def __init__(self, models_dir: str):
-        import tensorflow as tf
-        self.models_dir = pathlib.Path(models_dir)
+        # Convert string path to pathlib.Path and resolve it
+        self.models_dir = pathlib.Path(models_dir).resolve()
         self.model_paths: Dict[str, pathlib.Path] = {}
         self.current_model = None
         self.current_model_name = "--"
@@ -19,25 +22,41 @@ class ModelManager:
 
     def _load_model_files(self):
         if not self.models_dir.exists():
+            print(f"Models directory does not exist: {self.models_dir}")
             return
 
         model_files = itertools.chain(
-            self.models_dir.glob("*.keras"), self.models_dir.glob("*.h5")
+            self.models_dir.glob("*.keras"),
+            self.models_dir.glob("*.h5"),
+            self.models_dir.glob("*.KERAS"),
+            self.models_dir.glob("*.H5"),
         )
 
         for model_file in model_files:
-            self.model_paths[model_file.stem] = model_file
+            model_key = model_file.stem.lower()
+            if model_key not in self.model_paths:
+                self.model_paths[model_key] = model_file
+
+    def get_available_models(self) -> list[str]:
+        """Get list of available model names"""
+        return list(self.model_paths.keys())
 
     def load_model(self, model_name: str) -> bool:
-        if model_name not in self.model_paths:
+        model_key = model_name.lower()
+        if model_key not in self.model_paths:
             return False
 
         try:
-            model_path = self.model_paths[model_name]
-            self.current_model = tf.keras.models.load_model(model_path)
+            model_path = self.model_paths[model_key]
+            if not model_path.exists():
+                print(f"Model file no longer exists: {model_path}")
+                return False
+
+            self.current_model = tf.keras.models.load_model(str(model_path))
             self.current_model_name = model_name
             return True
-        except Exception:
+        except Exception as e:
+            print(f"Failed to load model {model_name}: {e}")
             return False
 
     def predict(self, data: np.ndarray) -> Optional[int]:

@@ -23,6 +23,8 @@ class DataManager:
         }
 
     def add_directory(self, dir_path: pathlib.Path) -> tuple[bool, str]:
+        dir_path = dir_path.resolve()
+
         if dir_path in self.mounted_dirs:
             return False, f"Directory '{dir_path}' already added"
 
@@ -180,8 +182,12 @@ class DataManager:
     def save_cam_imgs_as_pdf(
         self, image_paths: List[pathlib.Path], patient_id: str, output_dir: pathlib.Path
     ):
+        pdf_dir = output_dir / patient_id
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+
         pil_images = [Image.open(str(path)).convert("RGB") for path in image_paths]
-        pdf_path = output_dir / patient_id / f"{patient_id}.pdf"
+        pdf_path = pdf_dir / f"{patient_id}.pdf"
+
         pil_images[0].save(
             pdf_path,
             save_all=True,
