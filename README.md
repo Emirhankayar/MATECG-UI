@@ -63,8 +63,24 @@ Preprocessing involves denoising the signals, time-binning them to a fixed lengt
 </p>
 
 ## Final Pipeline
---TO BE ADDED--
-- Preparing the Application (plugging the data, model)
+The final prototype integrates the machine learning model into a cross-platform desktop application developed using PyQt5. The application offers a user-friendly graphical interface compatible with Linux, OSX, and Windows. 
+
+### Key functionalities:
+
+#### Data Visualization: 
+Display of raw 12-lead ECG signals for each patient.
+
+#### Patient Metadata Display: 
+Presentation of basic patient information (e.g., age, gender) and extracted signal features such as heart rate variability metrics.
+
+#### Automated Analysis: 
+ECG signals are analyzed using the trained AI model to classify potential arrhythmias.
+
+#### Explainability with Grad-CAM: 
+The application provides explainable AI outputs by generating Grad-CAM visualizations over ECG leads, helping to interpret the model’s decision.
+
+#### Results Exporting: 
+Classification results and visual explanations can be saved for future review or clinical reporting.
 
 ## Citations
 ### SignalGrad-CAM.
