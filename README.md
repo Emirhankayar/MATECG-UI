@@ -35,8 +35,8 @@ cd src\Data
 
 pip install gdown
 
-gdown https://drive.google.com/uc?id=14wejH07V4TiktA6WkpqACbwng66IVcgt
-gdown https://drive.google.com/uc?id=1h8L52fI3sTAhSSUkBu0Ku5VdsEwPhIYS
+gdown https://drive.google.com/uc?id=1LEl74mH2-VUf7sh7SnTqnR3ZThxzJxSr
+gdown https://drive.google.com/uc?id=1z51W9MPZOZB1cIj75OfbM057fTrOHw-2
 
 Expand-Archive -Path "External_Dataset.zip" -DestinationPath ".\External_Dataset"
 Expand-Archive -Path "Internal_Dataset.zip" -DestinationPath ".\Internal_Dataset"
