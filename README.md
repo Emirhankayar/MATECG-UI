@@ -4,6 +4,8 @@
 </p>
 
 ## Installation
+> Make sure that python3.12 is installed in your operating system.
+
 ### Linux & OSX
 ```sh
 git clone https://github.com/Emirhankayar/MATECG-UI.git
@@ -16,19 +18,16 @@ chmod +x install.sh
 ./install.sh
 ```
 ### Windows
+> On Windows operating system, if there is no default PDF viewer application, it will load gradcam results to the default browser. If you want to prevent this behavior you must download PDF viewer.
 ```sh
 git clone https://github.com/Emirhankayar/MATECG-UI.git
 cd MATECG-UI
 
-python3.12 -m venv venv
+py -3.12 -m venv venv
+.\\venv\Scripts\activate
 
-.\venv\Scripts\Activate.ps1
-
-pip install -U pip setuptools wheel
-pip install signal-grad-cam tensorflow openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
-pip uninstall opencv-python
-pip cache purge
-pip install opencv-python-headless
+python.exe -m pip install -U pip setuptools wheel
+pip install signal-grad-cam tensorflow==2.18 openpyxl pandas PyQt5 pyqtgraph pyqt-svg-button absresgetter scikit-learn matplotlib
 
 mkdir src\Data -Force
 cd src\Data
@@ -38,15 +37,15 @@ pip install gdown
 gdown https://drive.google.com/uc?id=1LEl74mH2-VUf7sh7SnTqnR3ZThxzJxSr
 gdown https://drive.google.com/uc?id=1z51W9MPZOZB1cIj75OfbM057fTrOHw-2
 
-Expand-Archive -Path "External_Dataset.zip" -DestinationPath ".\External_Dataset"
-Expand-Archive -Path "Internal_Dataset.zip" -DestinationPath ".\Internal_Dataset"
+Expand-Archive -Path "External_Dataset.zip" -DestinationPath ".\"
+Expand-Archive -Path "Internal_Dataset.zip" -DestinationPath ".\"
 
 cd ../..
-python3 main.py
+python main.py
 
 ```
 ## ECG Classification Based Medical Device Prototype
-This is the repository for the Medical Device Software Prototype being devoleped by Alessandro Longato, Emirhan Kayar, Lodovico Cabrini, and Libero Biagi, for the Laboratory of Medical Devices and Systems, third year of the Bachelor of Science in Artificial Intelligence (a.y. 2024/2025).
+This is the repository for the Medical Device Software Prototype being devoleped by Alessandro Longato, Emirhan Kayar, Lodovico Cabrini, and Libero Biagi, for the Laboratory of Medical Devices and Systems, final year of the Bachelor of Science in Artificial Intelligence (a.y. 2024/2025).
 
 ## Our Idea
 Our idea is to develop a machine learning software able to detect diffrent kinds of arrhythmia starting from raw ECG data and basic patient information, like age and gender. To complete the medical device, this software should be embedded in a portable ECG scanner, but this is beyond the scope of the laboratory. However, this project still delivers an industrial level application, and the model training software.
