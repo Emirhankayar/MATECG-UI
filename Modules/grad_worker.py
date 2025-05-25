@@ -1,4 +1,6 @@
 import time
+import logging
+import traceback
 import pathlib
 from signal_grad_cam import TfCamBuilder
 from PyQt5.QtCore import QRunnable, pyqtSignal, QObject
@@ -23,7 +25,7 @@ class GradCamWorker(QRunnable):
         self.dir_path = dir_path.resolve()
 
         self.signals = GradCamWorkerSignals()
-        self.grad_target_layer_name = ["res_4_conv_2"]
+        self.grad_target_layer_name = "res_3_conv_2"
         self.grad_target_classes = [0, 1, 2, 3]
         self.grad_class_labels = [
             "Atrial Fibrillation",
@@ -95,4 +97,10 @@ class GradCamWorker(QRunnable):
             self.signals.finished.emit()
 
         except Exception as e:
+            error_msg = str(e)
+            traceback_msg = traceback.format_exc()
+            print(f"GradCam Error: {error_msg}")
+            print(f"Traceback: {traceback_msg}")
+            logging.error(f"GradCam Error: {error_msg}")
+            logging.error(f"Traceback: {traceback_msg}")
             self.signals.error.emit(str(e))

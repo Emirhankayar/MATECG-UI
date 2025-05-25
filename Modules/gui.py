@@ -541,7 +541,7 @@ class App(QMainWindow):
 
         try:
             if platform.uname()[0] == "Windows":
-                subprocess.run(["open", pdf_path])
+                subprocess.call(["start", pdf_path], shell=True)
             elif platform.uname()[0] == "Darwin":
                 subprocess.Popen(["open", pdf_path])
             elif platform.uname()[0] == "Linux":
