@@ -1,4 +1,4 @@
-import sys
+import platform
 import pathlib
 import subprocess
 import webbrowser
@@ -536,31 +536,19 @@ class App(QMainWindow):
 
     def get_native_os(self, pdf_path: pathlib.Path):
         """use native OS app to view the pdf"""
-        """
-            placed a fallback, if the OS does not have native app
-            it runs the pdf in the browser NOT SURE IF GONNA WORK
-        """
         pdf_path = str(pdf_path.resolve())
+        file_url = "file://" + pdf_path
 
         try:
-            if sys.platform.startswith == "win":
-                import os
-
-                os.startfile(pdf_path)
-                return True
-            elif sys.platform.startswith == "darwin":
-                subprocess.run(["open", str(pdf_path)], check=True)
-                return True
-
-            elif sys.platform.startswith("linux"):
-                subprocess.run(["xdg-open", str(pdf_path)], check=True)
-                return True
-
-            else:
-                webbrowser.open(pdf_path.as_uri())
+            if platform.uname()[0] == "Windows":
+                subprocess.run(["open", pdf_path])
+            elif platform.uname()[0] == "Darwin":
+                subprocess.Popen(["open", pdf_path])
+            elif platform.uname()[0] == "Linux":
+                subprocess.run(["xdg-open", pdf_path])
         except Exception as e:
-            print(f"Failed to open file with system app")
-            return False
+            print(f"Failed to open file with system app, falling back to default web browser.")
+            webbrowser.get().open_new(file_url)
 
     def _open_cam_pdf_external(self):
         patient_id = self.selected_patient
