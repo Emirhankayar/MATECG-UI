@@ -32,13 +32,14 @@ pip install signal-grad-cam tensorflow==2.18 openpyxl pandas PyQt5 pyqtgraph pyq
 mkdir src\Data -Force
 cd src\Data
 
-pip install gdown
+pip install gdown fextract
 
 gdown https://drive.google.com/uc?id=1LEl74mH2-VUf7sh7SnTqnR3ZThxzJxSr
 gdown https://drive.google.com/uc?id=1z51W9MPZOZB1cIj75OfbM057fTrOHw-2
 
-Expand-Archive -Path "External_Dataset.zip" -DestinationPath ".\"
-Expand-Archive -Path "Internal_Dataset.zip" -DestinationPath ".\"
+fextract -x -v Internal_Dataset.zip
+fextract -x -v External_Dataset.zip
+
 
 cd ../..
 python main.py
