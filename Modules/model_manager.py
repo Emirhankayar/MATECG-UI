@@ -5,15 +5,14 @@ import pathlib
 import numpy as np
 import tensorflow as tf
 
-# Set TensorFlow logging before importing
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
-
+# TODO, load the list of models first, instead of loading the model itself
+# it will reduce app loading time, tensorflow will load when model is loaded
 class ModelManager:
     """Manages model loading and prediction"""
 
     def __init__(self, models_dir: str):
-        # Convert string path to pathlib.Path and resolve it
         self.models_dir = pathlib.Path(models_dir).resolve()
         self.model_paths: Dict[str, pathlib.Path] = {}
         self.current_model = None
@@ -38,7 +37,6 @@ class ModelManager:
                 self.model_paths[model_key] = model_file
 
     def get_available_models(self) -> list[str]:
-        """Get list of available model names"""
         return list(self.model_paths.keys())
 
     def load_model(self, model_name: str) -> bool:
